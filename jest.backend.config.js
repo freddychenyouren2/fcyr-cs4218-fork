@@ -6,7 +6,7 @@ export default {
   testEnvironment: "node",
 
   // which test to run
-  testMatch: ["<rootDir>/controllers/*.test.js"],
+  testMatch: ["<rootDir>/*/*.test.js"],
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
   transform: {
