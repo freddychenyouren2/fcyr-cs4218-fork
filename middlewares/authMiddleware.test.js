@@ -2,13 +2,13 @@ import jwt from "jsonwebtoken";
 import { requireSignIn, isAdmin } from "./authMiddleware";
 import userModel from "../models/userModel";
 // Mock jsonwebtoken and userModel to isolate middleware logic
-
+jest.mock("jsonwebtoken");
 // Mock userModel
 jest.mock("../models/userModel");
 
 // Mock request, response, and next
 const mockRequest = (headers = {}, body = {}, params = {}) => ({
-    headers,
+    headers: {},
     body,
     params,
     user: {}, // Add user object for isAdmin middleware
@@ -18,21 +18,23 @@ const mockResponse = () => {
     const res = {};
     res.status = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
+    res.json = jest.fn();
     return res;
 };
 const mockNext = jest.fn();
 
 describe("requireSignIn Middleware", () => {
+    let req, res, next
     beforeEach(() => {
         jest.clearAllMocks();
+        req = mockRequest();
+        res = mockResponse();
+        next = mockNext;
     });
 
-    it("should call next() if token is valid", async () => {
-        const req = mockRequest({
-            authorization: "valid_token",
-        });
-        const res = mockResponse();
-        const next = mockNext;
+    it("should call next() if a valid token is provided", async () => {
+        // Mock request with a valid token
+        req.headers.authorization = "Bearer valid_token";
 
         // Mock JWT verify to return a decoded token
         jwt.verify = jest.fn().mockReturnValue({ _id: "user_id" });
@@ -44,12 +46,20 @@ describe("requireSignIn Middleware", () => {
         expect(next).toHaveBeenCalled();
     });
 
-    it("should handle invalid token", async () => {
-        const req = mockRequest({
-            authorization: "invalid_token",
+    it("should return 401 if token is missing", async () => {
+        await requireSignIn(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(401); // Original Code does not handle this. Have to modify.
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            message: "Unauthorized: No token provided",
         });
-        const res = mockResponse();
-        const next = mockNext;
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it("should return 401 if token is invalid", async () => {
+        // Mock request with a valid token
+        req.headers.authorization = "Bearer invalid_token";
 
         // Mock JWT verify to throw an error
         jwt.verify = jest.fn().mockImplementation(() => {
@@ -62,6 +72,10 @@ describe("requireSignIn Middleware", () => {
         expect(next).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401); // Ensure error handling is proper
         // Original Code does not give 401 response. Have to modify.
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            message: "Unauthorized: Invalid or expired token",
+        });
     });
 });
 
@@ -85,7 +99,7 @@ describe("isAdmin Middleware", () => {
         expect(next).toHaveBeenCalled();
     })
 
-    it("should return 401 if user is not admin", async () => {
+    it("should return 403 if user is not admin", async () => {
         req.user = { _id: "non_admin_user_id" };
 
         // Mock userModel to return a user with role 0 (User)
@@ -95,10 +109,25 @@ describe("isAdmin Middleware", () => {
 
         expect(userModel.findById).toHaveBeenCalledWith(req.user._id);
         expect(next).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.send).toHaveBeenCalledWith({
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.json).toHaveBeenCalledWith({
             success: false,
-            message: "UnAuthorized Access",
+            message: "Forbidden: Admin Access Required",
+        });
+    })
+
+    it("should return 401 if user is not found", async () => {
+
+        // Mock userModel to return null
+        userModel.findById.mockResolvedValue(null);
+
+        await isAdmin(req, res, next);
+
+        expect(next).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            message: "Unauthorized: No user found",
         });
     })
 
