@@ -64,3 +64,61 @@ describe("requireSignIn Middleware", () => {
         // Original Code does not give 401 response. Have to modify.
     });
 });
+
+describe("isAdmin Middleware", () => {
+    let req, res, next;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = mockRequest();
+        res = mockResponse();
+        next = mockNext;
+    });
+
+    it("should call next() if user is admin", async () => {
+        // Mock userModel to return a user with role 1 (Admin)
+        req.user = { _id: "admin_user_id" };
+        userModel.findById = jest.fn().mockReturnValue({ role: 1 });
+
+        await isAdmin(req, res, next);
+
+        expect(userModel.findById).toHaveBeenCalledWith(req.user._id);
+        expect(next).toHaveBeenCalled();
+    })
+
+    it("should return 401 if user is not admin", async () => {
+        req.user = { _id: "non_admin_user_id" };
+
+        // Mock userModel to return a user with role 0 (User)
+        userModel.findById = jest.fn().mockReturnValue({ role: 0 });
+
+        await isAdmin(req, res, next);
+
+        expect(userModel.findById).toHaveBeenCalledWith(req.user._id);
+        expect(next).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.send).toHaveBeenCalledWith({
+            success: false,
+            message: "UnAuthorized Access",
+        });
+    })
+
+    it("should handle errors in isAdmin Middleware", async () => {
+        req.user = { _id: "admin_user_id" };
+        
+        // Mock userModel.findById to throw an error
+        userModel.findById = jest.fn().mockImplementation(() => {
+            throw new Error("Error in isAdmin middleware");
+        });
+
+        await isAdmin(req, res, next);
+
+        expect(userModel.findById).toHaveBeenCalledWith("admin_user_id");
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.send).toHaveBeenCalledWith({
+            success: false,
+            error: expect.any(Error),
+            message: "Error in admin middleware",
+        });
+        expect(next).not.toHaveBeenCalled();
+    });
+});
