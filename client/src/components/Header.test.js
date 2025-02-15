@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Header from './Header';
-import '@testing-library/jest-dom/extend-expect'; // Import the custom matchers
+import '@testing-library/jest-dom/extend-expect';
 import { useAuth } from '../context/auth';
 import { useCart } from '../context/cart';
 import useCategory from '../hooks/useCategory';
@@ -12,7 +12,7 @@ jest.mock('react-hot-toast');
 jest.mock('../context/auth');
 jest.mock('../context/cart');
 jest.mock('../hooks/useCategory');
-jest.mock('./Form/SearchInput', () => () => <div>SearchInput</div>); // Mock SearchInput component
+jest.mock('./Form/SearchInput', () => () => <div>SearchInput</div>);
 
 describe('Header', () => {
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('Header', () => {
       </MemoryRouter>
     );
 
-    expect(getByText('🛒 Virtual Vault')).toBeInTheDocument(); // Check Virtual Vault text on page
+    expect(getByText('🛒 Virtual Vault')).toBeInTheDocument();
   });
 
   it('should display respective category in the categories dropdown', async () => {
@@ -95,7 +95,6 @@ describe('Header', () => {
   });
 
   it('should display login and register links when user is not logged in', () => {
-    // Override the mock for useAuth to return null for the user
     useAuth.mockReturnValue([null, jest.fn()]);
 
     const { getByText } = render(
@@ -109,7 +108,7 @@ describe('Header', () => {
   });
 
   it('should have correct link hrefs when not logged in', () => {
-    useAuth.mockReturnValue([null, jest.fn()]); // Mock useAuth hook to return null user and a mock function for setAuth
+    useAuth.mockReturnValue([null, jest.fn()]);
     const { getByText } = render(
       <MemoryRouter>
         <Header />

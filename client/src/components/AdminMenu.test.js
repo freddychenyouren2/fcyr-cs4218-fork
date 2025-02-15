@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AdminMenu from './AdminMenu';
-import '@testing-library/jest-dom/extend-expect'; // Import the custom matchers
+import '@testing-library/jest-dom/extend-expect';
 
 describe('AdminMenu', () => {
   it('should render the AdminMenu component', () => {

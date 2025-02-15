@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import CategoryForm from './CategoryForm';
-import '@testing-library/jest-dom/extend-expect'; // Import the custom matchers
+import '@testing-library/jest-dom/extend-expect';
 
 describe('CategoryForm', () => {
   it('should render the CategoryForm component', () => {
@@ -13,7 +13,7 @@ describe('CategoryForm', () => {
     expect(getByText('Submit')).toBeInTheDocument();
   });
 
-  it('should change value when input change', () => {
+  it('should change value on input change', () => {
     const setValue = jest.fn();
     const { getByPlaceholderText } = render(
       <CategoryForm handleSubmit={jest.fn()} value="" setValue={setValue} />
@@ -25,7 +25,7 @@ describe('CategoryForm', () => {
     expect(setValue).toHaveBeenCalledWith('New Category');
   });
 
-  it('should handleSubmit when Submit button is clicked', () => {
+  it('should call handleSubmit when Submit button is clicked', () => {
     const handleSubmit = jest.fn();
     const { getByText } = render(
       <CategoryForm handleSubmit={handleSubmit} value="" setValue={jest.fn()} />

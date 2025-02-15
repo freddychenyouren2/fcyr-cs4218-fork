@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Spinner from './Spinner';
-import '@testing-library/jest-dom/extend-expect'; // Import the custom matchers
+import '@testing-library/jest-dom/extend-expect';
 
 const mockNavigate = jest.fn();
 
