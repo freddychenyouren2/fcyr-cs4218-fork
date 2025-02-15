@@ -43,7 +43,7 @@ describe('Header', () => {
     expect(queryByText('Category 1')).toBeInTheDocument();
   });
 
-  it('should display user name and dashboard link when logged in', () => {
+  it('should display user name, dashboard and logout link when logged in as user', () => {
     useAuth.mockReturnValue([{ user: { name: 'Test User', role: 0 }, token: 'test-token' }, jest.fn()]);
     const { getByText } = render(
       <MemoryRouter>
@@ -53,9 +53,23 @@ describe('Header', () => {
 
     expect(getByText('Test User')).toBeInTheDocument();
     expect(getByText('Dashboard')).toBeInTheDocument();
+    expect(getByText('Logout')).toBeInTheDocument();
   });
 
-  it('should call handleLogout and display toast message on logout', () => {
+  it('should display user name, dashboard and logout link when logged in as admin', () => {
+    useAuth.mockReturnValue([{ user: { name: 'Test Admin', role: 1 }, token: 'test-token' }, jest.fn()]);
+    const { getByText } = render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    );
+
+    expect(getByText('Test Admin')).toBeInTheDocument();
+    expect(getByText('Dashboard')).toBeInTheDocument();
+    expect(getByText('Logout')).toBeInTheDocument();
+  });
+
+  it('should display toast message on logout', () => {
     useAuth.mockReturnValue([{ user: { name: 'Test User', role: 0 }, token: 'test-token' }, jest.fn()]);
     const { getByText } = render(
       <MemoryRouter>
@@ -92,5 +106,53 @@ describe('Header', () => {
 
     expect(getByText('Login')).toBeInTheDocument();
     expect(getByText('Register')).toBeInTheDocument();
+  });
+
+  it('should have correct link hrefs when not logged in', () => {
+    useAuth.mockReturnValue([null, jest.fn()]); // Mock useAuth hook to return null user and a mock function for setAuth
+    const { getByText } = render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    );
+
+    expect(getByText('Home').closest('a')).toHaveAttribute('href', '/');
+    expect(getByText('Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('All Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('Category 1').closest('a')).toHaveAttribute('href', '/category/category-1');
+    expect(getByText('Register').closest('a')).toHaveAttribute('href', '/register');
+    expect(getByText('Login').closest('a')).toHaveAttribute('href', '/login');
+  });
+  
+  it('should have correct link hrefs when logged in as user', () => {
+    useAuth.mockReturnValue([{ user: { name: 'Test User', role: 0 }, token: 'test-token' }, jest.fn()]);
+    const { getByText } = render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    );
+
+    expect(getByText('Home').closest('a')).toHaveAttribute('href', '/');
+    expect(getByText('Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('All Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('Category 1').closest('a')).toHaveAttribute('href', '/category/category-1');
+    expect(getByText('Dashboard').closest('a')).toHaveAttribute('href', '/dashboard/user');
+    expect(getByText('Logout').closest('a')).toHaveAttribute('href', '/login');
+  });
+
+  it('should have correct link hrefs when logged in as admin', () => {
+    useAuth.mockReturnValue([{ user: { name: 'Test Admin', role: 1 }, token: 'test-token' }, jest.fn()]);
+    const { getByText } = render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    );
+
+    expect(getByText('Home').closest('a')).toHaveAttribute('href', '/');
+    expect(getByText('Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('All Categories').closest('a')).toHaveAttribute('href', '/categories');
+    expect(getByText('Category 1').closest('a')).toHaveAttribute('href', '/category/category-1');
+    expect(getByText('Dashboard').closest('a')).toHaveAttribute('href', '/dashboard/admin');
+    expect(getByText('Logout').closest('a')).toHaveAttribute('href', '/login');
   });
 });
