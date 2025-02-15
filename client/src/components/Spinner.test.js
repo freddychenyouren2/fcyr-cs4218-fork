@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Spinner from './Spinner';
 import '@testing-library/jest-dom/extend-expect'; // Import the custom matchers
@@ -18,27 +18,27 @@ jest.mock('react-router-dom', () => {
 
 describe('Spinner', () => {
   it('should render the Spinner component', () => {
-    render(
+    const { getByText, getByRole } = render(
       <MemoryRouter>
         <Spinner />
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/redirecting to you in 3 second/i)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(getByText(/redirecting to you in 3 second/i)).toBeInTheDocument();
+    expect(getByRole('status')).toBeInTheDocument();
   });
 
   it('should display the countdown correctly', async () => {
-    render(
+    const { getByText } = render(
       <MemoryRouter>
         <Spinner />
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/redirecting to you in 3 second/i)).toBeInTheDocument();
+    expect(getByText(/redirecting to you in 3 second/i)).toBeInTheDocument();
 
-    await waitFor(() => expect(screen.getByText(/redirecting to you in 2 second/i)).toBeInTheDocument(), { timeout: 2000 });
-    await waitFor(() => expect(screen.getByText(/redirecting to you in 1 second/i)).toBeInTheDocument(), { timeout: 2000 });
+    await waitFor(() => expect(getByText(/redirecting to you in 2 second/i)).toBeInTheDocument(), { timeout: 2000 });
+    await waitFor(() => expect(getByText(/redirecting to you in 1 second/i)).toBeInTheDocument(), { timeout: 2000 });
   });
 
   it('should navigate after the countdown', async () => {
