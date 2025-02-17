@@ -34,7 +34,7 @@ describe("requireSignIn Middleware", () => {
 
     it("should call next() if a valid token is provided", async () => {
         // Mock request with a valid token
-        req.headers.authorization = "Bearer valid_token";
+        req.headers.authorization = "valid_token";
 
         // Mock JWT verify to return a decoded token
         jwt.verify = jest.fn().mockReturnValue({ _id: "user_id" });
@@ -59,7 +59,7 @@ describe("requireSignIn Middleware", () => {
 
     it("should return 401 if token is invalid", async () => {
         // Mock request with a valid token
-        req.headers.authorization = "Bearer invalid_token";
+        req.headers.authorization = "invalid_token";
 
         // Mock JWT verify to throw an error
         jwt.verify = jest.fn().mockImplementation(() => {
