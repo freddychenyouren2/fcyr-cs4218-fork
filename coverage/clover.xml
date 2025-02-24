@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739614168524" clover="3.2.0">
-  <project timestamp="1739614168524" name="All files">
-    <metrics statements="44" coveredstatements="43" conditionals="7" coveredconditionals="7" methods="17" coveredmethods="17" elements="68" coveredelements="67" complexity="0" loc="44" ncloc="44" packages="2" files="8" classes="8"/>
+<coverage generated="1740390974669" clover="3.2.0">
+  <project timestamp="1740390974669" name="All files">
+    <metrics statements="54" coveredstatements="53" conditionals="13" coveredconditionals="13" methods="20" coveredmethods="20" elements="87" coveredelements="86" complexity="0" loc="54" ncloc="54" packages="3" files="9" classes="9"/>
     <package name="components">
       <metrics statements="29" coveredstatements="29" conditionals="7" coveredconditionals="7" methods="12" coveredmethods="12"/>
       <file name="AdminMenu.js" path="/Users/linuschan/Desktop/CS4218/cs4218-2420-ecom-project-team04-1/client/src/components/AdminMenu.js">
@@ -74,6 +74,22 @@
         <line num="18" count="0" type="stmt"/>
         <line num="21" count="3" type="stmt"/>
         <line num="30" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.Routes">
+      <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
+      <file name="Private.js" path="/Users/linuschan/Desktop/CS4218/cs4218-2420-ecom-project-team04-1/client/src/components/Routes/Private.js">
+        <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="4" type="cond" truecount="2" falsecount="0"/>
       </file>
     </package>
   </project>
