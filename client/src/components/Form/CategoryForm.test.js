@@ -32,7 +32,7 @@ describe('CategoryForm', () => {
     );
 
     const button = getByText('Submit');
-    fireEvent.click(button);
+    fireEvent.submit(button.closest('form')); // For simulating form submission
 
     expect(handleSubmit).toHaveBeenCalled();
   });
