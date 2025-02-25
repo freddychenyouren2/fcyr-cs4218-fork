@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739815430194" clover="3.2.0">
-  <project timestamp="1739815430194" name="All files">
-    <metrics statements="488" coveredstatements="54" conditionals="107" coveredconditionals="15" methods="135" coveredmethods="15" elements="730" coveredelements="84" complexity="0" loc="488" ncloc="488" packages="4" files="22" classes="22"/>
+<coverage generated="1740470632369" clover="3.2.0">
+  <project timestamp="1740470632369" name="All files">
+    <metrics statements="488" coveredstatements="58" conditionals="107" coveredconditionals="16" methods="135" coveredmethods="17" elements="730" coveredelements="91" complexity="0" loc="488" ncloc="488" packages="4" files="22" classes="22"/>
     <package name="pages">
-      <metrics statements="181" coveredstatements="8" conditionals="55" coveredconditionals="5" methods="56" coveredmethods="2"/>
+      <metrics statements="181" coveredstatements="12" conditionals="55" coveredconditionals="6" methods="56" coveredmethods="4"/>
       <file name="About.js" path="C:\Users\fredd\Documents\Academics\NUSY3S2\CS4218\fcyr-cs4218-fork\client\src\pages\About.js">
         <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
@@ -200,20 +200,20 @@
         <line num="98" count="0" type="stmt"/>
       </file>
       <file name="Search.js" path="C:\Users\fredd\Documents\Academics\NUSY3S2\CS4218\fcyr-cs4218-fork\client\src\pages\Search.js">
-        <metrics statements="13" coveredstatements="8" conditionals="8" coveredconditionals="5" methods="4" coveredmethods="2"/>
+        <metrics statements="13" coveredstatements="12" conditionals="8" coveredconditionals="6" methods="4" coveredmethods="4"/>
         <line num="7" count="1" type="stmt"/>
-        <line num="8" count="6" type="stmt"/>
-        <line num="9" count="6" type="stmt"/>
-        <line num="10" count="6" type="stmt"/>
-        <line num="13" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="8" count="9" type="stmt"/>
+        <line num="9" count="9" type="stmt"/>
+        <line num="10" count="9" type="stmt"/>
+        <line num="13" count="9" type="cond" truecount="1" falsecount="1"/>
         <line num="14" count="0" type="stmt"/>
-        <line num="18" count="6" type="cond" truecount="1" falsecount="1"/>
-        <line num="19" count="6" type="stmt"/>
-        <line num="33" count="6" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
+        <line num="18" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="19" count="9" type="stmt"/>
+        <line num="33" count="9" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
       </file>
     </package>
     <package name="pages.Auth">
