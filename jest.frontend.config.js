@@ -26,7 +26,7 @@ export default {
   collectCoverage: true,
   collectCoverageFrom: ["client/src/components/Header.js", "client/src/components/Footer.js", "client/src/components/Layout.js",
     "client/src/components/Spinner.js", "client/src/components/UserMenu.js", "client/src/components/AdminMenu.js", "client/src/components/Form/CategoryForm.js",
-    "client/src/components/Form/SearchInput.js", "client/src/components/Routes/Private.js", , "client/src/pages/Categories.js"],
+    "client/src/components/Form/SearchInput.js", "client/src/components/Routes/Private.js", "client/src/pages/Categories.js"],
   coverageThreshold: {
     global: {
       lines: 100,
