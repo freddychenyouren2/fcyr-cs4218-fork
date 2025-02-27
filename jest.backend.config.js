@@ -1,4 +1,4 @@
-export default {
+export default {  
   // display name
   displayName: "backend",
 
@@ -6,11 +6,16 @@ export default {
   testEnvironment: "node",
 
   // which test to run
-  testMatch: ["<rootDir>/controllers/*.test.js"],
+  testMatch: ["<rootDir>/*/*.test.js"],
+
+  // jest does not recognise jsx files by default, so we use babel to transform any jsx files
+  transform: {
+    "^.+\\.jsx?$": "babel-jest",
+  },
 
   // jest code coverage
   collectCoverage: true,
-  collectCoverageFrom: ["controllers/**"],
+  collectCoverageFrom: ["controllers/**", "middlewares/**"],
   coverageThreshold: {
     global: {
       lines: 100,
