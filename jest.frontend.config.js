@@ -45,7 +45,7 @@ export default {
     'client/src/pages/Contact.js',
     'client/src/pages/Policy.js',
     'client/src/pages/PageNotFound.js',
-    
+    'client/src/pages/HomePage.js',
   ],
   coverageThreshold: {
     global: {
