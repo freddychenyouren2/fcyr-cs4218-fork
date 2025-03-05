@@ -48,6 +48,7 @@ export default {
     'client/src/pages/PageNotFound.js',
     'client/src/pages/HomePage.js',
     'client/src/pages/Search.js',
+    "client/src/pages/user/Profile.js",
   ],
   coverageThreshold: {
     global: {
