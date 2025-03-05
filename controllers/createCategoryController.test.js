@@ -42,10 +42,10 @@ describe("createCategoryController", () => {
 
     await createCategoryController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(409);
     expect(jsonMock).toHaveBeenCalledWith({
       success: true,
-      message: "Category Already Exisits",
+      message: "Category already exists",
     });
   });
 
