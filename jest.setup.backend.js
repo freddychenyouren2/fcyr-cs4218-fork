@@ -1,5 +1,8 @@
 import { jest } from "@jest/globals";
 import { TextEncoder, TextDecoder } from "util";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Mock `TextEncoder` and `TextDecoder` globally
 global.TextEncoder = TextEncoder;
