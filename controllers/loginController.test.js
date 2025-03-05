@@ -4,7 +4,7 @@ import { comparePassword } from "../helpers/authHelper.js";
 import { jest } from "@jest/globals";
 import JWT from "jsonwebtoken"; // This now uses the mock from mocks/jsonwebtoken.js
 
-// ✅ Mock Dependencies for other modules
+// Mock Dependencies for other modules
 jest.mock("../models/userModel.js");
 jest.mock("../helpers/authHelper.js");
 
@@ -33,10 +33,10 @@ describe("loginController", () => {
     req.body.email = "";
     await loginController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Invalid email or password",
+      message: "Email and password are required",
     });
   });
 
@@ -44,10 +44,10 @@ describe("loginController", () => {
     req.body.password = "";
     await loginController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Invalid email or password",
+      message: "Email and password are required",
     });
   });
 
@@ -59,7 +59,7 @@ describe("loginController", () => {
     expect(res.status).toHaveBeenCalledWith(404);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Email is not registerd",
+      message: "Email is not registered",
     });
   });
 
@@ -75,10 +75,10 @@ describe("loginController", () => {
 
     await loginController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Invalid Password",
+      message: "Invalid password",
     });
   });
 
@@ -103,7 +103,7 @@ describe("loginController", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(jsonMock).toHaveBeenCalledWith({
       success: true,
-      message: "login successfully",
+      message: "Login successfully",
       user: {
         _id: mockUser._id,
         name: mockUser.name,

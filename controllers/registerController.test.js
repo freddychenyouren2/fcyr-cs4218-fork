@@ -10,13 +10,12 @@ const testUser = {
   _id: "67a218decf4efddf1e5358ac",
   name: "CS 4218 Test Account",
   email: "cs4218@test.com",
-  password: "$2b$10$//wWsN./fEXiWiipH57HG.SAwgKv1MRrPSkpM3BDy5seOEhCoUy",
+  password: "hashedpassword123",
   phone: "81234567",
   address: "1 Computing Drive",
   answer: "password is cs4218@test.com",
   role: 0,
 };
-
 
 describe("registerController", () => {
   let req, res, jsonMock;
@@ -39,69 +38,92 @@ describe("registerController", () => {
       },
     };
 
-    // Reset all mocks before each test
     jest.clearAllMocks();
   });
 
-  // Use Case 1: Missing Required Fields
-  test("should return error if name is missing", async () => {
+  // Missing Required Fields
+  test("should return 400 if name is missing", async () => {
     req.body.name = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ error: "Name is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Name is required",
+    });
   });
 
-  test("should return error if email is missing", async () => {
+  test("should return 400 if email is missing", async () => {
     req.body.email = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ message: "Email is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Email is required",
+    });
   });
 
-  test("should return error if password is missing", async () => {
+  test("should return 400 if password is missing", async () => {
     req.body.password = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ message: "Password is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Password is required",
+    });
   });
 
-  test("should return error if phone is missing", async () => {
+  test("should return 400 if phone is missing", async () => {
     req.body.phone = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ message: "Phone no is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Phone number is required",
+    });
   });
 
-  test("should return error if address is missing", async () => {
+  test("should return 400 if address is missing", async () => {
     req.body.address = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ message: "Address is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Address is required",
+    });
   });
 
-  test("should return error if answer is missing", async () => {
+  test("should return 400 if security answer is missing", async () => {
     req.body.answer = "";
     await registerController(req, res);
 
-    expect(res.send).toHaveBeenCalledWith({ message: "Answer is Required" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      message: "Security answer is required",
+    });
   });
 
-  // Use Case 2: User Already Exists
-  test("should return error if user is already registered", async () => {
+  // User Already Exists
+  test("should return 409 if user is already registered", async () => {
     userModel.findOne.mockResolvedValueOnce(testUser);
 
     await registerController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(409);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Already Register please login",
+      message: "Email already registered. Please log in.",
     });
   });
 
-  // Use Case 3: Successfully Registers User
+  // Successful Registration
   test("should successfully register a user", async () => {
-    userModel.findOne.mockResolvedValueOnce(null); // No existing user
+    userModel.findOne.mockResolvedValueOnce(null);
     hashPassword.mockResolvedValueOnce("hashedpassword123");
     userModel.mockImplementation(() => ({
       save: jest.fn().mockResolvedValueOnce({
@@ -111,7 +133,7 @@ describe("registerController", () => {
         phone: testUser.phone,
         address: testUser.address,
         password: "hashedpassword123",
-        answer: testUser.answer,
+        answer: "hashedsecurityanswer",
       }),
     }));
 
@@ -120,8 +142,9 @@ describe("registerController", () => {
     expect(res.status).toHaveBeenCalledWith(201);
     expect(jsonMock).toHaveBeenCalledWith({
       success: true,
-      message: "User Register Successfully",
+      message: "User registered successfully",
       user: expect.objectContaining({
+        _id: "67a218decf4efddf1e5358ac",
         name: testUser.name,
         email: testUser.email,
         phone: testUser.phone,
@@ -130,7 +153,7 @@ describe("registerController", () => {
     });
   });
 
-  // Use Case 4: Handles Unexpected Errors
+  // Handle Unexpected Errors
   test("should handle unexpected errors", async () => {
     userModel.findOne.mockRejectedValueOnce(new Error("Database error"));
 
@@ -139,7 +162,7 @@ describe("registerController", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(jsonMock).toHaveBeenCalledWith({
       success: false,
-      message: "Errro in Registeration",
+      message: "Error in registration",
       error: expect.any(Error),
     });
   });
