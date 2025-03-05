@@ -131,6 +131,9 @@ describe("User Profile Component", () => {
         fireEvent.change(screen.getByPlaceholderText("Enter Your Email"), {
             target: { value: "newEmail@example.com" },
         });
+        fireEvent.change(screen.getByPlaceholderText("Enter Your Password"), {
+            target: { value: "New Password" },
+        });
         fireEvent.change(screen.getByPlaceholderText("Enter Your Phone Number"), {
             target: { value: "0987654321" },
         });
@@ -145,7 +148,7 @@ describe("User Profile Component", () => {
             expect(axios.put).toHaveBeenCalledWith("/api/v1/auth/profile", {
                 name: "New Name",
                 email: "newEmail@example.com",
-                password: "",
+                password: "New Password",
                 phone: "0987654321",
                 address: "New Address 456, Suburb",
             });
@@ -193,5 +196,62 @@ describe("User Profile Component", () => {
             expect(toast.error).toHaveBeenCalledWith("Something went wrong");
         });
     });
+
+    test('updates state when auth.user changes', async () => {
+        const mockSetAuth = jest.fn();
+        //  Mock useAuth to initially return null user (to trigger change later)
+        useAuth.mockReturnValue([
+            { user: null, token: "mockToken" }, // Initially no user
+            mockSetAuth,
+        ]);
+
+        const { rerender } = render(
+            <MemoryRouter initialEntries={["/dashboard/user/profile"]}>
+                <Routes>
+                    <Route path="/dashboard" element={<Outlet />}>
+                        <Route path="user/profile" element={<Profile />} />
+                    </Route>
+                </Routes>
+            </MemoryRouter>
+        );
+
+        //  Ensure fields are empty initially
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue("");
+        });
+        expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue("");
+        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue("");
+        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue("");
+      
+        // Simulate auth.user update
+        useAuth.mockReturnValue([
+            {
+                user: {
+                    name: 'Jane Doe',
+                    email: 'janedoe@example.com',
+                    phone: '9876543210',
+                    address: '456 Avenue',
+                },
+                token: "mockToken2",
+            },
+                mockSetAuth]);
+      
+        rerender(
+            <MemoryRouter initialEntries={["/dashboard/user/profile"]}>
+                <Routes>
+                    <Route path="/dashboard" element={<Outlet />} >
+                        <Route path="user/profile" element={<Profile />} />
+                    </Route>
+                </Routes>
+            </MemoryRouter>
+        );
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue('Jane Doe');
+        }, { timeout: 3000});
+        expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue('janedoe@example.com');
+        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue('9876543210');
+        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue('456 Avenue');
+    
+      });
 
 });
