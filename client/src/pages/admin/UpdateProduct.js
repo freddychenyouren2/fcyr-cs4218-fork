@@ -71,11 +71,11 @@ const UpdateProduct = () => {
       productData.append("shipping", shipping);
       photo && productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.put(
+      const { data } = await axios.put(
         `/api/v1/product/update-product/${id}`,
         productData
       );
-      if (data?.success) {
+      if (!data?.success) {
         toast.error(data?.message);
       } else {
         toast.success("Product Updated Successfully");
@@ -95,7 +95,7 @@ const UpdateProduct = () => {
       const { data } = await axios.delete(
         `/api/v1/product/delete-product/${id}`
       );
-      toast.success("Product DEleted Succfully");
+      toast.success("Product Deleted Successfully");
       navigate("/dashboard/admin/products");
     } catch (error) {
       console.log(error);
@@ -113,7 +113,7 @@ const UpdateProduct = () => {
             <h1>Update Product</h1>
             <div className="m-1 w-75">
               <Select
-                bordered={false}
+                variant="borderless"
                 placeholder="Select a category"
                 size="large"
                 showSearch
@@ -201,7 +201,7 @@ const UpdateProduct = () => {
               </div>
               <div className="mb-3">
                 <Select
-                  bordered={false}
+                  variant="borderless"
                   placeholder="Select Shipping "
                   size="large"
                   showSearch
