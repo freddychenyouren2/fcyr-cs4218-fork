@@ -29,11 +29,11 @@ describe("createCategoryController", () => {
     jest.clearAllMocks();
   });
 
-  test("should return 401 if name is missing", async () => {
+  test("should return 400 if name is missing", async () => {
     req.body.name = "";
     await createCategoryController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(jsonMock).toHaveBeenCalledWith({ message: "Name is required" });
   });
 
