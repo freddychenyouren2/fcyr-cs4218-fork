@@ -68,6 +68,7 @@ const UpdateProduct = () => {
       productData.append("description", description);
       productData.append("price", price);
       productData.append("quantity", quantity);
+      productData.append("shipping", shipping);
       photo && productData.append("photo", photo);
       productData.append("category", category);
       const { data } = axios.put(
@@ -208,10 +209,10 @@ const UpdateProduct = () => {
                   onChange={(value) => {
                     setShipping(value);
                   }}
-                  value={shipping ? "yes" : "No"}
+                  value={shipping ? "Yes" : "No"}
                 >
-                  <Option value="0">No</Option>
-                  <Option value="1">Yes</Option>
+                  <Option value={false}>No</Option>
+                  <Option value={true}>Yes</Option>
                 </Select>
               </div>
               <div className="mb-3">
