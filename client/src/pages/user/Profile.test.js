@@ -6,8 +6,6 @@ import Profile from "./Profile";
 import { useAuth } from "../../context/auth";
 import axios from "axios";
 import toast from "react-hot-toast";
-import PrivateRoute from "../../components/Routes/Private";
-import { token } from "morgan";
 
 // Mock dependencies
 jest.mock("../../context/auth", () => ({
