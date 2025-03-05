@@ -36,10 +36,11 @@ describe('ProductDetails', () => {
         },
       },
     };
-    const mockRelatedProductsData = {
+    const mockSimilarProductsData = {
       data: {
         products: [
           { _id: '2', name: 'Product 2', slug: 'product-2', price: 200, description: 'Description 2' },
+          { _id: '3', name: 'Product 3', slug: 'product-3', price: 300, description: 'Description 3' },
         ],
       },
     };
@@ -48,7 +49,7 @@ describe('ProductDetails', () => {
         return Promise.resolve(mockProductData);
       }
       if (url.includes('related-product')) {
-        return Promise.resolve(mockRelatedProductsData);
+        return Promise.resolve(mockSimilarProductsData);
       }
     });
 
@@ -62,7 +63,7 @@ describe('ProductDetails', () => {
       expect(getByText('Product Details')).toBeInTheDocument();
       expect(getByText('Name : Product 1')).toBeInTheDocument();
       expect(getByText('Description : Description 1')).toBeInTheDocument();
-      expect(getByText('Price : $100.00')).toBeInTheDocument();
+      expect(getByText('Price :$100.00')).toBeInTheDocument();
       expect(getByText('Category : Category 1')).toBeInTheDocument();
       expect(getByAltText('Product 1')).toBeInTheDocument();
     });
@@ -71,10 +72,12 @@ describe('ProductDetails', () => {
       expect(getByText('Similar Products ➡️')).toBeInTheDocument();
       expect(getByText('Product 2')).toBeInTheDocument();
       expect(getByAltText('Product 2')).toBeInTheDocument();
+      expect(getByText('Product 3')).toBeInTheDocument();
+      expect(getByAltText('Product 3')).toBeInTheDocument();
     });
   });
 
-  it('should navigate to related product details page when "More Details" button is clicked', async () => {
+  it('should navigate to the similar product details page when "More Details" button is clicked', async () => {
     const mockProductData = {
       data: {
         product: {
@@ -87,7 +90,7 @@ describe('ProductDetails', () => {
         },
       },
     };
-    const mockRelatedProductsData = {
+    const mockSimilarProductsData = {
       data: {
         products: [
           { _id: '2', name: 'Product 2', slug: 'product-2', price: 200, description: 'Description 2' },
@@ -99,7 +102,7 @@ describe('ProductDetails', () => {
         return Promise.resolve(mockProductData);
       }
       if (url.includes('related-product')) {
-        return Promise.resolve(mockRelatedProductsData);
+        return Promise.resolve(mockSimilarProductsData);
       }
     });
 
@@ -118,7 +121,7 @@ describe('ProductDetails', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/product/product-2');
   });
 
-  it('should render the ProductDetails component with no related products', async () => {
+  it('should render the ProductDetails component with no similar products', async () => {
     const mockProductData = {
       data: {
         product: {
@@ -131,7 +134,7 @@ describe('ProductDetails', () => {
         },
       },
     };
-    const mockRelatedProductsData = {
+    const mockSimilarProductsData = {
       data: {
         products: [],
       },
@@ -141,7 +144,7 @@ describe('ProductDetails', () => {
         return Promise.resolve(mockProductData);
       }
       if (url.includes('related-product')) {
-        return Promise.resolve(mockRelatedProductsData);
+        return Promise.resolve(mockSimilarProductsData);
       }
     });
 
@@ -155,7 +158,7 @@ describe('ProductDetails', () => {
       expect(getByText('Product Details')).toBeInTheDocument();
       expect(getByText('Name : Product 1')).toBeInTheDocument();
       expect(getByText('Description : Description 1')).toBeInTheDocument();
-      expect(getByText('Price : $100.00')).toBeInTheDocument();
+      expect(getByText('Price :$100.00')).toBeInTheDocument();
       expect(getByText('Category : Category 1')).toBeInTheDocument();
     });
 
