@@ -20,6 +20,7 @@ export default {
   transformIgnorePatterns: ['/node_modules/(?!(styleMock\\.js)$)'],
 
   // only run these tests
+
   testMatch: [
     '<rootDir>/client/src/components/*.test.js',
     '<rootDir>/client/src/components/*/*.test.js',
@@ -46,6 +47,7 @@ export default {
     'client/src/pages/Policy.js',
     'client/src/pages/PageNotFound.js',
     'client/src/pages/HomePage.js',
+    'client/src/pages/Search.js',
   ],
   coverageThreshold: {
     global: {
