@@ -7,14 +7,21 @@ import moment from "moment";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [auth, setAuth] = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [auth] = useAuth();
 
   const getOrders = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const { data } = await axios.get("/api/v1/auth/orders");
       setOrders(data);
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setError("Failed to fetch orders. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,7 +38,11 @@ const Orders = () => {
           </div>
           <div className="col-md-9">
             <h1 className="text-center">All Orders</h1>
-            {orders.length === 0 ? (
+            {loading ? (
+              <p className="text-center">Loading...</p>
+            ) : error ? (
+              <p className="text-center text-danger">{error}</p>
+            ) : orders.length === 0 ? (
               <p className="text-center">No orders found.</p>
             ) : (
               orders?.map((o, i) => {
