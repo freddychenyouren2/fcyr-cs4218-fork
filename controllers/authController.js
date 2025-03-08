@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import { comparePassword, hashPassword } from "../helpers/authHelper.js";
@@ -176,35 +177,66 @@ export const testController = (req, res) => {
   }
 };
 
-//update prfole
+//update profile
 export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
 
-    const updateFields = {
-      name,
-      email,
-      phone,
-      address,
-    };
+    // Validate at least one field is provided
+    if (!name && !email && !password && !address && !phone) {
+      return res.status(400).send({
+        success: false,
+        message: "At least one field is required to update the profile.",
+      });
+    }
 
+    // Ensure user ID is valid
+    if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+      return res.status(400).send({ success: false, message: "Invalid user ID format" });
+    }
+
+    // Find user first
+    const user = await userModel.findById(req.user._id);
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+
+    // Prepare fields to update
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (phone) updateFields.phone = phone;
+    if (address) updateFields.address = address;
     if (password) {
       updateFields.password = await hashPassword(password);
     }
 
-    const updatedUser = await userModel.findByIdAndUpdate(req.user._id, updateFields, { new: true });
+    // Update user
+    const updatedUser = await userModel.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateFields },
+      { new: true }
+    );
 
-    res.status(200).send({
+    if (!updatedUser) {
+      return res.status(404).send({
+        success: false,
+        message: "User update failed",
+      });
+    }
+
+    return res.status(200).send({
       success: true,
       message: "Profile updated successfully",
       updatedUser,
     });
+
   } catch (error) {
-    console.log(error);
-    res.status(400).send({
+    console.error("Error in updateProfileController:", error);
+    return res.status(500).send({
       success: false,
-      message: "Error while updating profile",
-      error,
+      message: "Internal server error while updating profile",
+      error: error.message,
     });
   }
 };
