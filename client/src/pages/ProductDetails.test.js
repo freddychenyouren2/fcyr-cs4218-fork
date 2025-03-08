@@ -77,7 +77,7 @@ describe('ProductDetails', () => {
     });
   });
 
-  it('should navigate to the similar product details page when "More Details" button is clicked', async () => {
+  it('should navigate to the respective product details page when "More Details" button is clicked', async () => {
     const mockProductData = {
       data: {
         product: {

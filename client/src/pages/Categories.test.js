@@ -9,7 +9,7 @@ jest.mock('../hooks/useCategory');
 jest.mock('../components/Layout', () => ({ children }) => <div>{children}</div>);
 
 describe('Categories', () => {
-  it('should render the Categories component with categories', () => {
+  it('should render the Categories component with respective categories', () => {
     const mockCategories = [
       { _id: '1', name: 'Category 1', slug: 'category-1' },
       { _id: '2', name: 'Category 2', slug: 'category-2' },

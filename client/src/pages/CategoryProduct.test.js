@@ -23,7 +23,7 @@ describe('CategoryProduct', () => {
     useNavigate.mockReturnValue(mockNavigate);
   });
 
-  it('should render the CategoryProduct component with products', async () => {
+  it('should render the CategoryProduct component with respective products', async () => {
     const mockData = {
       data: {
         products: [

@@ -28,7 +28,6 @@ describe('HomePage', () => {
   });
 
   it('should fetch and display categories', async () => {
-    // Mock category API call
     axios.get.mockResolvedValueOnce({
       data: {
         success: true,
@@ -38,11 +37,9 @@ describe('HomePage', () => {
         ],
       },
     });
-    // Mock product count API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, total: 2 },
     });
-    // Mock initial products API call
     axios.get.mockResolvedValueOnce({
       data: {
         products: [
@@ -70,15 +67,12 @@ describe('HomePage', () => {
   });
 
   it('should fetch and display products', async () => {
-    // Mock category API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, category: [{ _id: '1', name: 'Category 1' }] },
     });
-    // Mock product count API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, total: 1 },
     });
-    // Mock initial products API call
     axios.get.mockResolvedValueOnce({
       data: {
         products: [
@@ -105,15 +99,12 @@ describe('HomePage', () => {
   });
 
   it('should fetch and set total product count', async () => {
-    // Mock category API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, category: [] },
     });
-    // Mock product count API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, total: 10 },
     });
-    // Mock initial products API call
     axios.get.mockResolvedValueOnce({
       data: { products: [] },
     });
@@ -130,15 +121,12 @@ describe('HomePage', () => {
   });
 
   it('should load more products', async () => {
-    // Mock category API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, category: [] },
     });
-    // Mock product count API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, total: 4 },
     });
-    // Mock initial products API call
     axios.get.mockResolvedValueOnce({
       data: {
         products: [
@@ -152,7 +140,6 @@ describe('HomePage', () => {
         ],
       },
     });
-    // Mock load more products API call
     axios.get.mockResolvedValueOnce({
       data: {
         products: [
@@ -185,19 +172,15 @@ describe('HomePage', () => {
   });
 
   it('should filter products by category', async () => {
-    // Mock category API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, category: [{ _id: '1', name: 'Test Category' }] },
     });
-    // Mock product count API call
     axios.get.mockResolvedValueOnce({
       data: { success: true, total: 1 },
     });
-    // Mock initial products API call
     axios.get.mockResolvedValueOnce({
       data: { products: [] },
     });
-    // Mock filtered products API call
     axios.post.mockResolvedValueOnce({
       data: {
         products: [
