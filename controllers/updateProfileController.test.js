@@ -30,7 +30,7 @@ describe("updateProfileController", () => {
     res = httpMocks.createResponse();
 
     // By default, assume the user is logged in and has some valid _id
-    req.user = { _id: "507f1f77bcf86cd799439011" }; // typical valid MongoDB ObjectId
+    req.user = { _id: "507f1f77bcf86cd799439011" };
   });
 
   afterEach(() => {
@@ -39,7 +39,6 @@ describe("updateProfileController", () => {
 
   // 1) No fields provided
   it("should return 400 if no fields are provided", async () => {
-    // Make sure no fields are in req.body
     req.body = {};
 
     // Return true for isValid check
@@ -98,9 +97,6 @@ describe("updateProfileController", () => {
       address: "123 Updated Street",
     };
 
-    // If password is included, we should test hashing as well:
-    // req.body.password = "newpassword";
-
     mongoose.Types.ObjectId.isValid.mockReturnValue(true);
 
     // Mock the user found in the DB
@@ -114,9 +110,6 @@ describe("updateProfileController", () => {
 
     // findById should return the existing user
     userModel.findById.mockResolvedValue(mockUser);
-
-    // If password is provided, the controller calls hashPassword.
-    // For demonstration, let's assume no password was provided in this test.
 
     // findByIdAndUpdate should return the updated user
     const updatedUser = {

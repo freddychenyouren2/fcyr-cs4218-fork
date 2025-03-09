@@ -22,7 +22,7 @@ describe("updateCategoryController", () => {
     };
 
     req = {
-      params: { id: "64a8e8aefb3b3c001f5d8d52" }, // Mock category ID
+      params: { id: "64a8e8aefb3b3c001f5d8d52" },
       body: { name: "Updated Category" },
     };
 
