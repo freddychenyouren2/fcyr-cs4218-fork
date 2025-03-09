@@ -1,6 +1,6 @@
-export default {  
+module.exports = {
   // display name
-  displayName: "backend",
+  displayName: 'backend',
 
   // when testing backend
   testEnvironment: "node",
