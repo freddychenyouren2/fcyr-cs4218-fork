@@ -58,6 +58,7 @@ export default {
     "client/src/pages/user/Orders.js",
     "client/src/context/auth.js",
     "client/src/context/cart.js",
+    "client/src/context/search.js",
   ],
   coverageThreshold: {
     global: {
