@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import UserModel from './models/userModel';
-import CategoryModel from './models/categoryModel';
+import UserModel from './userModel';
+import CategoryModel from './categoryModel';
 
 let mongoServer;
 
 export const setupTestDB = () => {
+  jest.setTimeout(10000);
+
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
