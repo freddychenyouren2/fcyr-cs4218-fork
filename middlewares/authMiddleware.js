@@ -6,7 +6,8 @@ const verifyToken = (token) => {
     try {
         return JWT.verify(token, process.env.JWT_SECRET);
     } catch (error) {
-        return null;
+        console.error(error);
+        throw new Error("JWT Verification Failed");
     }
 };
 
@@ -23,14 +24,6 @@ export const requireSignIn = async (req, res, next) => {
         }
 
         const decoded = verifyToken(authHeaderToken);
-
-        if (!decoded) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized: Invalid or expired token",
-            });
-        }
-
         req.user = decoded;
         next();
     } catch (error) {

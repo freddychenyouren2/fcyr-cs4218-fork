@@ -57,7 +57,7 @@ describe("requireSignIn Middleware", () => {
         expect(next).not.toHaveBeenCalled();
     });
 
-    it("should return 401 if token is invalid", async () => {
+    it("should return 401 and 'Error in Sign In Middleware' if token is invalid", async () => {
         // Mock request with a valid token
         req.headers.authorization = "invalid_token";
 
@@ -71,11 +71,30 @@ describe("requireSignIn Middleware", () => {
         expect(jwt.verify).toHaveBeenCalledWith("invalid_token", process.env.JWT_SECRET);
         expect(next).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401); // Ensure error handling is proper
-        // Original Code does not give 401 response. Have to modify.
-        expect(res.json).toHaveBeenCalledWith({
+        expect(res.send).toHaveBeenCalledWith({
             success: false,
-            message: "Unauthorized: Invalid or expired token",
+            error: expect.any(Error),
+            message: "Error in Sign In Middleware",
         });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it("should return 401 and 'Error in Sign In Middleware' if an unexpected error occurs", async () => {
+        req.headers.authorization = "valid_token";
+
+        jwt.verify.mockImplementation(() => {
+            throw new Error("JWT Verification Failed");
+        });
+
+        await requireSignIn(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.send).toHaveBeenCalledWith({
+            success: false,
+            error: expect.any(Error),
+            message: "Error in Sign In Middleware",
+        });
+        expect(next).not.toHaveBeenCalled();
     });
 });
 
