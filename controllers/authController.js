@@ -244,23 +244,33 @@ export const updateProfileController = async (req, res) => {
 //orders
 export const getOrdersController = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(400).json({
+        success: false,
+        message: "User authentication required",
+      });
+    }
+
     const orders = await orderModel
       .find({ buyer: req.user._id })
       .populate("products", "-photo")
       .populate("buyer", "name")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Orders retrieved successfully",
       orders,
     });
+
   } catch (error) {
     console.log(error);
-    res.status(500).send({
+
+    // Ensure this response format is **always JSON**
+    return res.status(500).json({
       success: false,
       message: "Error while retrieving orders",
-      error,
+      error: error.message || "Internal Server Error",
     });
   }
 };
