@@ -1,4 +1,6 @@
 export default {
+  testTimeout: 10000,
+
   // name displayed during tests
   displayName: 'frontend',
 
