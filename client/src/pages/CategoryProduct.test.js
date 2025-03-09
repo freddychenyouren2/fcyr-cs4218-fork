@@ -97,4 +97,22 @@ describe('CategoryProduct', () => {
       expect(getByText('0 result found')).toBeInTheDocument();
     });
   });
+
+  it('should handle error when getting products by category fails', async () => {
+    const consoleErrorMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const errorMessage = 'Network Error';
+    axios.get.mockRejectedValue(new Error(errorMessage));
+
+    render(
+      <MemoryRouter>
+        <CategoryProduct />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(consoleErrorMock).toHaveBeenCalledWith(new Error(errorMessage));
+    });
+
+    consoleErrorMock.mockRestore();
+  });
 });
