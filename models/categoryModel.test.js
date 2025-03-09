@@ -9,6 +9,9 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
+
+  // Ensure indexes are created
+  await CategoryModel.createIndexes();
 });
 
 // Clear all test data after each test
