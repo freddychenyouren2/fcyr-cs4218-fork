@@ -29,6 +29,7 @@ export default {
     'client/src/components/**/*.js',
     'client/src/pages/**/*.js',
     'client/src/context/**/*.js',
+    'client/src/hooks/**/*.js',
   ],
   coverageThreshold: {
     global: {
