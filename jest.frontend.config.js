@@ -52,6 +52,7 @@ export default {
     'client/src/pages/CategoryProduct.js',
     'client/src/pages/CartPage.js',
     'client/src/pages/Search.js',
+    "client/src/pages/user/Dashboard.js",
     "client/src/pages/user/Profile.js",
     "client/src/pages/user/Orders.js",
   ],
