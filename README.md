@@ -4,10 +4,13 @@ This is a full-stack e-commerce application built with the MERN stack (MongoDB, 
 
 ## Continuous Integration
 
-Our project uses GitHub Actions for continuous integration. The CI pipeline runs tests automatically on every push to the main branch and on pull requests.
+Our project uses GitHub Actions for continuous integration. The CI pipeline runs tests automatically on every commit push and merged pull requests.
 
-**CI URL:** https://github.com/cs4218/cs4218-2420-ecom-project-team04-1/actions/workflows/main.yml
+**CI URL:**
 
+PR merge:[https://github.com/cs4218/cs4218-2420-ecom-project-team04-1/actions/workflows/main.yml](https://github.com/cs4218/cs4218-2420-ecom-project-team04-1/actions/runs/13751017299/job/38451989168)
+
+Push commit: [https://github.com/cs4218/cs4218-2420-ecom-project-team04-1/actions/runs/13750949592/job/38451839364](https://github.com/cs4218/cs4218-2420-ecom-project-team04-1/actions/runs/13750949592/job/38451839364)
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
