@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { deleteCategoryCOntroller } from "./categoryController.js";
+import { deleteCategoryController } from "./categoryController.js";
 import categoryModel from "../models/categoryModel.js";
 
 jest.mock("../models/categoryModel.js");
@@ -24,7 +24,7 @@ describe("deleteCategoryController", () => {
   test("should delete category and return 200 when category exists", async () => {
     categoryModel.findByIdAndDelete.mockResolvedValueOnce({ _id: req.params.id });
 
-    await deleteCategoryCOntroller(req, res);
+    await deleteCategoryController(req, res);
 
     expect(categoryModel.findByIdAndDelete).toHaveBeenCalledWith("64a8e8aefb3b3c001f5d8d52");
     expect(res.status).toHaveBeenCalledWith(200);
@@ -37,7 +37,7 @@ describe("deleteCategoryController", () => {
   test("should return 400 if `id` is missing in params", async () => {
     req.params.id = undefined;
 
-    await deleteCategoryCOntroller(req, res);
+    await deleteCategoryController(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(jsonMock).toHaveBeenCalledWith({
@@ -49,7 +49,7 @@ describe("deleteCategoryController", () => {
   test("should return 404 if category does not exist", async () => {
     categoryModel.findByIdAndDelete.mockResolvedValueOnce(null);
 
-    await deleteCategoryCOntroller(req, res);
+    await deleteCategoryController(req, res);
 
     expect(categoryModel.findByIdAndDelete).toHaveBeenCalledWith("64a8e8aefb3b3c001f5d8d52");
     expect(res.status).toHaveBeenCalledWith(404);
@@ -62,7 +62,7 @@ describe("deleteCategoryController", () => {
   test("should return 500 when database delete operation fails", async () => {
     categoryModel.findByIdAndDelete.mockRejectedValueOnce(new Error("Database error"));
 
-    await deleteCategoryCOntroller(req, res);
+    await deleteCategoryController(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(jsonMock).toHaveBeenCalledWith(

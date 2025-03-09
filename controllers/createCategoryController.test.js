@@ -1,13 +1,11 @@
-import { jest } from "@jest/globals"; // ✅ Explicitly import Jest in ESM
+import { jest } from "@jest/globals";
 
 import { createCategoryController } from "../controllers/categoryController.js";
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify";
 
-// ✅ Mock Dependencies
 jest.mock("../models/categoryModel.js");
 
-// ✅ Mock `slugify`
 jest.mock("slugify", () => jest.fn((name) => `${name}-slug`));
 
 describe("createCategoryController", () => {
@@ -37,14 +35,14 @@ describe("createCategoryController", () => {
     expect(jsonMock).toHaveBeenCalledWith({ message: "Name is required" });
   });
 
-  test("should return 200 if category already exists", async () => {
+  test("should return 409 if category already exists", async () => {
     categoryModel.findOne.mockResolvedValueOnce({ name: "Electronics" });
 
     await createCategoryController(req, res);
 
     expect(res.status).toHaveBeenCalledWith(409);
     expect(jsonMock).toHaveBeenCalledWith({
-      success: true,
+      success: false,
       message: "Category already exists",
     });
   });
@@ -70,6 +68,7 @@ describe("createCategoryController", () => {
   });
 
   test("should return 500 on server error", async () => {
+    const consoleErrorMock = jest.spyOn(console, 'log').mockImplementation(() => {});
     categoryModel.findOne.mockRejectedValueOnce(new Error("Database error"));
 
     await createCategoryController(req, res);
@@ -81,5 +80,7 @@ describe("createCategoryController", () => {
         message: "Error in Category",
       })
     );
+
+    consoleErrorMock.mockRestore();
   });
 });
