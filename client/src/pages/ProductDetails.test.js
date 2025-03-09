@@ -7,6 +7,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 
 jest.mock('axios');
+jest.mock('react-hot-toast');
+jest.mock('../context/cart', () => ({
+  useCart: jest.fn(() => [[], jest.fn()]),
+}));
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
   useNavigate: jest.fn(),
