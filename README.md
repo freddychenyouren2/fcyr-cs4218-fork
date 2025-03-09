@@ -153,7 +153,3 @@ npm run sonarqube
 - **MongoDB Connection Issues**: Ensure your MongoDB server is running and the connection string in `.env` is correct.
 - **Port Conflicts**: If port 6060 or 3000 is already in use, you can change the port in the respective configuration files.
 - **Missing Environment Variables**: Make sure all required environment variables are set in the `.env` file.
-
-## License
-
-ISC
