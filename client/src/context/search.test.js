@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { SearchProvider, useSearch } from './search';
 
 describe('search context', () => {
@@ -35,9 +35,9 @@ describe('search context', () => {
     );
 
     const newSearchData = { keyword: "test", results: ["result1", "result2"] };
-
-    setSearchState(newSearchData);
-
+    act(() => {
+        setSearchState(newSearchData);
+    });
     expect(newSearchData).toEqual({ keyword: "test", results: ["result1", "result2"] });
   });
 });

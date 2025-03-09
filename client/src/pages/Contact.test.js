@@ -12,9 +12,9 @@ jest.mock('../components/Layout', () => {
 
 // Mock the react-icons
 jest.mock('react-icons/bi', () => ({
-  BiMailSend: () => <div data-testid="mail-icon">Mail Icon</div>,
-  BiPhoneCall: () => <div data-testid="phone-icon">Phone Icon</div>,
-  BiSupport: () => <div data-testid="support-icon">Support Icon</div>,
+  BiMailSend: () => <span data-testid="mail-icon">Mail Icon</span>,
+  BiPhoneCall: () => <span data-testid="phone-icon">Phone Icon</span>,
+  BiSupport: () => <span data-testid="support-icon">Support Icon</span>,
 }));
 
 describe('Contact Component', () => {

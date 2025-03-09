@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act } from '@testing-library/react';
 import { CartProvider, useCart } from './cart';
 
 describe('cart context', () => {
@@ -61,8 +61,9 @@ describe('cart context', () => {
     );
 
     const newCartData = [{ id: 2, name: 'Added Product', quantity: 1 }];
-
-    setCartState(newCartData);
+    act(() => {
+      setCartState(newCartData);
+    });
 
     await waitFor(() => {
       expect(localStorage.getItem('cart')).toBe(JSON.stringify(newCartData));
