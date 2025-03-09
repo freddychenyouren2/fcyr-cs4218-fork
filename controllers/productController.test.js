@@ -12,7 +12,7 @@ import {
   productCountController,
   productListController,
   searchProductController,
-  realtedProductController,
+  relatedProductController,
   productCategoryController,
   braintreeTokenController,
   brainTreePaymentController,
@@ -186,7 +186,7 @@ describe('Product Controller', () => {
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
         error: expect.any(Error),
-        message: 'Error in crearing product',
+        message: 'Error in creating product',
       });
     });
   });
@@ -208,7 +208,7 @@ describe('Product Controller', () => {
       expect(mockRes.send).toHaveBeenCalledWith({
         success: true,
         counTotal: 2,
-        message: 'ALlProducts ',
+        message: 'All Products',
         products: mockProducts,
       });
     });
@@ -223,7 +223,7 @@ describe('Product Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Erorr in getting products',
+        message: 'Error in getting products',
         error: 'Database error',
       });
     });
@@ -268,7 +268,7 @@ describe('Product Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Eror while getitng single product',
+        message: 'Error while getting single product',
         error: expect.any(Error),
       });
     });
@@ -313,7 +313,7 @@ describe('Product Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Erorr while getting photo',
+        message: 'Error while getting photo',
         error: expect.any(Error),
       });
     });
@@ -469,7 +469,7 @@ describe('Product Controller', () => {
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
         error: expect.any(Error),
-        message: 'Error in Updte product',
+        message: 'Error in Update product',
       });
     });
   });
@@ -510,7 +510,7 @@ describe('Product Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
-        message: 'Error WHile Filtering Products',
+        message: 'Error While Filtering Products',
         error: expect.any(Error),
       });
     });
@@ -651,7 +651,7 @@ describe('Product Controller', () => {
     });
   });
 
-  describe('realtedProductController', () => {
+  describe('relatedProductController', () => {
     beforeEach(() => {
       mockReq = {
         params: {
@@ -673,7 +673,7 @@ describe('Product Controller', () => {
         populate: jest.fn().mockResolvedValue(mockProducts),
       });
 
-      await realtedProductController(mockReq, mockRes);
+      await relatedProductController(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -690,12 +690,12 @@ describe('Product Controller', () => {
         populate: jest.fn().mockRejectedValue(error),
       });
 
-      await realtedProductController(mockReq, mockRes);
+      await relatedProductController(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: false,
-        message: 'error while geting related product',
+        message: 'error while getting related product',
         error: expect.any(Error),
       });
     });
