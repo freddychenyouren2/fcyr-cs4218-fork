@@ -1,39 +1,64 @@
 import JWT from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
-// Protected routes token-based
+// Utility function for token verification
+const verifyToken = (token) => {
+    try {
+        return JWT.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        return null;
+    }
+};
+
+// Protected routes token base
 export const requireSignIn = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
-        if (!token) {
-            return res.status(401).json({ success: false, message: "Access Denied. No token provided." });
+        const authHeaderToken = req.headers.authorization;
+        console.log("authHeaderToken: ", authHeaderToken);
+        if (!authHeaderToken) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: No token provided",
+            });
         }
 
-        try {
-            const decode = JWT.verify(token, process.env.JWT_SECRET);
-            req.user = decode;
-            next();
-        } catch (error) {
-            if (error.name === "TokenExpiredError") {
-                return res.status(401).json({ success: false, message: "Token expired. Please log in again." });
-            } else {
-                return res.status(401).json({ success: false, message: "Invalid token." });
-            }
+        const decoded = verifyToken(authHeaderToken);
+
+        if (!decoded) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: Invalid or expired token",
+            });
         }
+
+        req.user = decoded;
+        next();
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error." });
+        res.status(401).send({
+            success: false,
+            error,
+            message: "Error in Sign In Middleware",
+        });
     }
 };
 
 // Admin access
 export const isAdmin = async (req, res, next) => {
     try {
+        // Check if user is found
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: No user found",
+            });
+        }
+
         const user = await userModel.findById(req.user._id);
-        if (!user || user.role !== 1) {
+        if(!user || user.role !== 1) { 
             return res.status(403).json({
                 success: false,
-                message: "Forbidden: Admin access required.",
+                message: "Forbidden: Admin Access Required",
             });
         }
         next();

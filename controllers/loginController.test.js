@@ -2,11 +2,14 @@ import { loginController } from "../controllers/authController.js";
 import userModel from "../models/userModel.js";
 import { comparePassword } from "../helpers/authHelper.js";
 import { jest } from "@jest/globals";
-import JWT from "jsonwebtoken"; // This now uses the mock from mocks/jsonwebtoken.js
+import JWT from "jsonwebtoken";
 
 // Mock Dependencies for other modules
 jest.mock("../models/userModel.js");
 jest.mock("../helpers/authHelper.js");
+
+// Ensure Jest uses the mock `jsonwebtoken` module
+jest.mock("jsonwebtoken");
 
 describe("loginController", () => {
   let req, res, jsonMock;
@@ -16,6 +19,7 @@ describe("loginController", () => {
     res = {
       status: jest.fn(() => ({ send: jsonMock })),
       send: jsonMock,
+      json: jsonMock,
     };
 
     req = {
@@ -95,8 +99,6 @@ describe("loginController", () => {
 
     userModel.findOne.mockResolvedValueOnce(mockUser);
     comparePassword.mockResolvedValueOnce(true);
-    // With the manual mock, JWT.sign always returns "mock-token"
-    // No need to call mockReturnValueOnce here
 
     await loginController(req, res);
 

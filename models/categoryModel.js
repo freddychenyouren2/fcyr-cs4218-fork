@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema({
   name: {
@@ -8,9 +8,8 @@ const categorySchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    required: true,
     lowercase: true,
   },
 });
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model('Category', categorySchema);
