@@ -339,6 +339,7 @@ export const braintreeTokenController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send({ error: "Failed to generate token" });
   }
 };
 
@@ -358,13 +359,14 @@ export const brainTreePaymentController = async (req, res) => {
           submitForSettlement: true,
         },
       },
-      function (error, result) {
+      async function (error, result) {
         if (result) {
           const order = new orderModel({
             products: cart,
             payment: result,
             buyer: req.user._id,
-          }).save();
+          })
+          await order.save();
           res.json({ ok: true });
         } else {
           res.status(500).send(error);
