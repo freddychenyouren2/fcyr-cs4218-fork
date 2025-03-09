@@ -65,4 +65,26 @@ describe('SearchInput', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/search');
     });
   });
+
+  it('should handle error when api call fails', async () => {
+    const consoleErrorMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const errorMessage = 'Network Error';
+    axios.get.mockRejectedValue(new Error(errorMessage));
+
+    const { getByText } = render(
+      <MemoryRouter>
+        <SearchInput />
+      </MemoryRouter>
+    );
+
+    const button = getByText('Search');
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith('/api/v1/product/search/');
+      expect(consoleErrorMock).toHaveBeenCalledWith(new Error(errorMessage));
+    });
+
+    consoleErrorMock.mockRestore();
+  });
 });
