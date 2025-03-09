@@ -1,4 +1,4 @@
-export default {  
+export default {
   // name displayed during tests
   displayName: 'frontend',
 
@@ -21,44 +21,14 @@ export default {
 
   // only run these tests
 
-  testMatch: [
-    '<rootDir>/client/src/components/*.test.js',
-    '<rootDir>/client/src/components/*/*.test.js',
-    '<rootDir>/client/src/pages/*.test.js',
-    '<rootDir>/client/src/pages/*/*.test.js',
-    '<rootDir>/client/src/context/*.test.js'
-  ],
+  testMatch: ['<rootDir>/client/src/**/*.test.js'],
 
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
-    'client/src/components/Header.js',
-    'client/src/components/Footer.js',
-    'client/src/components/Layout.js',
-    'client/src/components/Spinner.js',
-    'client/src/components/UserMenu.js',
-    'client/src/components/AdminMenu.js',
-    'client/src/components/Form/CategoryForm.js',
-    'client/src/components/Form/SearchInput.js',
-    'client/src/components/Routes/Private.js',
-    'client/src/pages/Auth/Login.js',
-    'client/src/pages/Auth/Register.js',
-    'client/src/pages/About.js',
-    'client/src/pages/Contact.js',
-    'client/src/pages/Policy.js',
-    'client/src/pages/PageNotFound.js',
-    'client/src/pages/HomePage.js',
-    'client/src/pages/ProductDetails.js',
-    'client/src/pages/Categories.js',
-    'client/src/pages/CategoryProduct.js',
-    'client/src/pages/CartPage.js',
-    'client/src/pages/Search.js',
-    "client/src/pages/user/Dashboard.js",
-    "client/src/pages/user/Profile.js",
-    "client/src/pages/user/Orders.js",
-    "client/src/context/auth.js",
-    "client/src/context/cart.js",
-    "client/src/context/search.js",
+    'client/src/components/**/*.js',
+    'client/src/pages/**/*.js',
+    'client/src/context/**/*.js',
   ],
   coverageThreshold: {
     global: {
