@@ -25,7 +25,6 @@ describe("testController", () => {
     const errorMock = new Error("Unexpected Error");
     console.log = jest.fn(); // Mock console.log to prevent actual logging
 
-    // Modify testController to simulate an error
     const errorTestController = (req, res) => {
       try {
         throw errorMock;

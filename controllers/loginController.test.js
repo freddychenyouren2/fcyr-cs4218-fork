@@ -8,7 +8,6 @@ import JWT from "jsonwebtoken";
 jest.mock("../models/userModel.js");
 jest.mock("../helpers/authHelper.js");
 
-// Ensure Jest uses the mock `jsonwebtoken` module
 jest.mock("jsonwebtoken");
 
 describe("loginController", () => {
@@ -29,7 +28,7 @@ describe("loginController", () => {
       },
     };
 
-    process.env.JWT_SECRET = "test-secret"; // Ensure JWT_SECRET is set
+    process.env.JWT_SECRET = "test-secret";
     jest.clearAllMocks();
   });
 

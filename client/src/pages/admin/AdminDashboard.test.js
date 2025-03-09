@@ -8,14 +8,14 @@ import AdminDashboard from "./AdminDashboard";
 jest.mock("../../components/Layout", () => ({ children }) => <div data-testid="layout">{children}</div>);
 jest.mock("../../components/AdminMenu", () => () => <div data-testid="admin-menu"></div>);
 
-// ✅ Mock useAuth() to provide test authentication data
+// Mock useAuth() to provide test authentication data
 jest.mock("../../context/auth", () => ({
   useAuth: jest.fn()
 }));
 
 describe("AdminDashboard Component", () => {
   beforeEach(() => {
-    // ✅ Mock auth data returned by useAuth()
+    // Mock auth data returned by useAuth()
     useAuth.mockReturnValue([
       { 
         user: { 
@@ -25,7 +25,7 @@ describe("AdminDashboard Component", () => {
         }, 
         token: "mock-token" 
       },
-      jest.fn() // Mock setAuth function
+      jest.fn()
     ]);
   });
 
@@ -37,7 +37,7 @@ describe("AdminDashboard Component", () => {
     // Debugging: Check rendered output
     screen.debug();
 
-    // ✅ Wait for UI update
+    // Wait for UI update
     await waitFor(() => {
       expect(screen.getByText(/Admin Name : CS 4218 Test Account/i)).toBeInTheDocument();
       expect(screen.getByText(/Admin Email : cs4218@test.com/i)).toBeInTheDocument();

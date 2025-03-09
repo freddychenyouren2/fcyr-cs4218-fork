@@ -10,7 +10,6 @@ describe("getOrdersController", () => {
   beforeEach(() => {
     req = httpMocks.createRequest();
     res = httpMocks.createResponse();
-    // Usually, this route is protected by middleware, so we have a user object:
     req.user = { _id: "507f1f77bcf86cd799439011" };
   });
 
@@ -74,7 +73,6 @@ describe("getOrdersController", () => {
   
     expect(res.statusCode).toBe(500);
   
-    // Ensure we parse JSON correctly
     const responseData = res._getJSONData();
   
     expect(responseData.success).toBe(false);
@@ -84,8 +82,7 @@ describe("getOrdersController", () => {
   
 
   it("should return 400 if user ID is missing in the request", async () => {
-    // This test is “right logic”, but the controller won't pass without a fix
-    req.user = null; // or delete req.user
+    req.user = null;
 
     await getOrdersController(req, res);
 
