@@ -96,12 +96,15 @@ describe("loginController", () => {
       role: 0,
       password: "cs4218@test.com",
     };
-
+  
     userModel.findOne.mockResolvedValueOnce(mockUser);
     comparePassword.mockResolvedValueOnce(true);
-
+  
+    // Add this line: mock JWT.sign to return the string "mock-token"
+    JWT.sign.mockReturnValueOnce("mock-token");
+  
     await loginController(req, res);
-
+  
     expect(res.status).toHaveBeenCalledWith(200);
     expect(jsonMock).toHaveBeenCalledWith({
       success: true,
@@ -117,6 +120,7 @@ describe("loginController", () => {
       token: "mock-token",
     });
   });
+  
 
   test("should handle unexpected database errors", async () => {
     userModel.findOne.mockRejectedValueOnce(new Error("Database error"));
