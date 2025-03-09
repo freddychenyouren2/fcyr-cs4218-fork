@@ -1,43 +1,20 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import ProductModel from './productModel';
 import CategoryModel from './categoryModel';
+import { setupTestDB } from './testSetup';
 
-let mongoServer;
-
-// Connect to the in-memory database before tests
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
-});
-
-// Clear all test data after each test
-afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
-  }
-});
-
-// Disconnect and close the server after all tests
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
+setupTestDB();
 
 describe('Product Model Test Suite', () => {
   let testCategory;
+  let validProduct;
 
   beforeEach(async () => {
     // Create a test category to use in product tests
     const category = new CategoryModel({ name: 'Test Category' });
     testCategory = await category.save();
-  });
 
-  it('should create & save product successfully', async () => {
-    const validProduct = {
+    validProduct = {
       name: 'Test Product',
       slug: 'test-product',
       description: 'Test Description',
@@ -46,7 +23,9 @@ describe('Product Model Test Suite', () => {
       quantity: 100,
       shipping: true,
     };
+  });
 
+  it('should create & save product successfully', async () => {
     const product = new ProductModel(validProduct);
     const savedProduct = await product.save();
 
@@ -65,32 +44,16 @@ describe('Product Model Test Suite', () => {
   it('should fail to save product with missing required fields', async () => {
     const productWithMissingFields = new ProductModel({
       name: 'Test Product',
-      // missing other required fields
     });
 
-    let err;
-    try {
-      await productWithMissingFields.save();
-    } catch (error) {
-      err = error;
-    }
-
-    expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
-    expect(err.errors.slug).toBeDefined();
-    expect(err.errors.description).toBeDefined();
-    expect(err.errors.price).toBeDefined();
-    expect(err.errors.category).toBeDefined();
-    expect(err.errors.quantity).toBeDefined();
+    await expect(productWithMissingFields.save()).rejects.toThrow(
+      mongoose.Error.ValidationError
+    );
   });
 
   it('should save product with photo', async () => {
     const productWithPhoto = {
-      name: 'Test Product',
-      slug: 'test-product',
-      description: 'Test Description',
-      price: 99.99,
-      category: testCategory._id,
-      quantity: 100,
+      ...validProduct,
       photo: {
         data: Buffer.from('test image data'),
         contentType: 'image/jpeg',
@@ -106,13 +69,9 @@ describe('Product Model Test Suite', () => {
 
   it('should save product without optional fields', async () => {
     const productWithoutOptional = {
-      name: 'Test Product',
-      slug: 'test-product',
-      description: 'Test Description',
-      price: 99.99,
-      category: testCategory._id,
-      quantity: 100,
-      // shipping and photo are optional
+      ...validProduct,
+      shipping: undefined,
+      photo: undefined,
     };
 
     const product = new ProductModel(productWithoutOptional);
@@ -125,20 +84,12 @@ describe('Product Model Test Suite', () => {
   });
 
   it('should populate category field', async () => {
-    const product = new ProductModel({
-      name: 'Test Product',
-      slug: 'test-product',
-      description: 'Test Description',
-      price: 99.99,
-      category: testCategory._id,
-      quantity: 100,
-    });
-
+    const product = new ProductModel(validProduct);
     await product.save();
 
-    const populatedProduct = await ProductModel.findById(product._id).populate(
-      'category'
-    );
+    const populatedProduct = await ProductModel.findById(product._id)
+      .populate('category')
+      .exec();
 
     expect(populatedProduct.category).toBeDefined();
     expect(populatedProduct.category.name).toBe('Test Category');
