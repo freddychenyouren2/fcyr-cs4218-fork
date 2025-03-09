@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import ProductModel from './productModel';
 import CategoryModel from './categoryModel';
-import { setupTestDB } from './testSetup';
+import { setupTestDB } from '../testSetup';
 
 setupTestDB();
 

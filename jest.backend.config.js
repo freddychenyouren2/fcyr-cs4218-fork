@@ -6,6 +6,13 @@ export default {
 
   // when testing backend
   testEnvironment: 'node',
+  
+  // check again
+  // moduleNameMapper: {
+  //   "^jsonwebtoken$": "<rootDir>/mocks/jsonwebtoken.js",
+  // },
+
+  // setupFilesAfterEnv: ["<rootDir>/jest.setup.backend.js"],
 
   // which test to run
   testMatch: ['<rootDir>/*/*.test.js'],

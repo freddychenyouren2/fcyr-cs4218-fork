@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import UserModel from './userModel';
-import { setupTestDB } from './testSetup';
+import { setupTestDB } from '../testSetup';
 
 setupTestDB();
 

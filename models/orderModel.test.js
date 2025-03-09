@@ -3,7 +3,7 @@ import OrderModel from './orderModel';
 import ProductModel from './productModel';
 import UserModel from './userModel';
 import CategoryModel from './categoryModel';
-import { setupTestDB } from './testSetup';
+import { setupTestDB } from '../testSetup';
 
 setupTestDB();
 
