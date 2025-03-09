@@ -284,17 +284,18 @@ export const getAllOrdersController = async (req, res) => {
       .populate("buyer", "name")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "All orders retrieved successfully",
       orders,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
+
+    return res.status(500).json({
       success: false,
       message: "Error while retrieving orders",
-      error,
+      error: error.message || "Internal Server Error",
     });
   }
 };
