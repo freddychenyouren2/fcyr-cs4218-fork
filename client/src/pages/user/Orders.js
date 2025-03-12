@@ -16,7 +16,7 @@ const Orders = () => {
     setError(null);
     try {
       const { data } = await axios.get("/api/v1/auth/orders");
-      setOrders(data);
+      setOrders(data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setError("Failed to fetch orders. Please try again later.");
