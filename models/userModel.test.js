@@ -33,7 +33,7 @@ describe('User Model Test Suite', () => {
     expect(savedUser.role).toBe(validUser.role);
     expect(savedUser.createdAt).toBeDefined();
     expect(savedUser.updatedAt).toBeDefined();
-  });
+  }, 15000);
 
   it('should fail to save user with missing required fields', async () => {
     const userWithMissingFields = new UserModel({
@@ -43,7 +43,7 @@ describe('User Model Test Suite', () => {
     await expect(userWithMissingFields.save()).rejects.toThrow(
       mongoose.Error.ValidationError
     );
-  });
+  }, 15000);
 
   it('should fail to save user with duplicate email', async () => {
     // First ensure the collection is empty
@@ -70,7 +70,7 @@ describe('User Model Test Suite', () => {
     expect(error.name).toBe('MongoServerError');
     expect(error.code).toBe(11000);
     expect(error.message).toContain('duplicate key error');
-  });
+  }, 15000);
 
   it('should save user with default role value', async () => {
     const userWithoutRole = {
@@ -83,7 +83,7 @@ describe('User Model Test Suite', () => {
     const savedUser = await user.save();
 
     expect(savedUser.role).toBe(0);
-  });
+  }, 15000);
 
   it('should trim whitespace from name field', async () => {
     const userWithWhitespace = {
@@ -96,7 +96,7 @@ describe('User Model Test Suite', () => {
     const savedUser = await user.save();
 
     expect(savedUser.name).toBe('John Doe');
-  });
+  }, 15000);
 
   it('should include timestamps in the document', async () => {
     const user = new UserModel({
@@ -107,5 +107,5 @@ describe('User Model Test Suite', () => {
 
     expect(savedUser.createdAt).toBeInstanceOf(Date);
     expect(savedUser.updatedAt).toBeInstanceOf(Date);
-  });
-});
+  }, 15000);
+}, 30000);

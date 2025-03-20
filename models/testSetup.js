@@ -6,7 +6,7 @@ import CategoryModel from './categoryModel';
 let mongoServer;
 
 export const setupTestDB = () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(20000);
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();

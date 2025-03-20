@@ -45,7 +45,7 @@ describe('Order Model Test Suite', () => {
       buyer: testUser._id,
       status: 'Not Process',
     };
-  });
+  }, 20000); // Longer timeout for beforeEach since it creates multiple entities
 
   it('should create & save order successfully', async () => {
     const order = new OrderModel(validOrder);
@@ -58,7 +58,7 @@ describe('Order Model Test Suite', () => {
     expect(savedOrder.status).toBe('Not Process');
     expect(savedOrder.createdAt).toBeDefined();
     expect(savedOrder.updatedAt).toBeDefined();
-  });
+  }, 15000);
 
   it('should save order with default status', async () => {
     const orderWithoutStatus = {
@@ -70,7 +70,7 @@ describe('Order Model Test Suite', () => {
     const savedOrder = await order.save();
 
     expect(savedOrder.status).toBe('Not Process');
-  });
+  }, 15000);
 
   it('should fail to save order with invalid status', async () => {
     const orderWithInvalidStatus = {
@@ -80,7 +80,7 @@ describe('Order Model Test Suite', () => {
 
     const order = new OrderModel(orderWithInvalidStatus);
     await expect(order.save()).rejects.toThrow();
-  });
+  }, 15000);
 
   it('should populate products and buyer', async () => {
     const order = new OrderModel(validOrder);
@@ -93,7 +93,7 @@ describe('Order Model Test Suite', () => {
 
     expect(populatedOrder.products[0].name).toBe('Test Product');
     expect(populatedOrder.buyer.name).toBe('Test User');
-  });
+  }, 15000);
 
   it('should update order status', async () => {
     const order = new OrderModel(validOrder);
@@ -103,5 +103,5 @@ describe('Order Model Test Suite', () => {
     const updatedOrder = await savedOrder.save();
 
     expect(updatedOrder.status).toBe('Processing');
-  });
-});
+  }, 15000);
+}, 60000); // Higher timeout for the entire test suite

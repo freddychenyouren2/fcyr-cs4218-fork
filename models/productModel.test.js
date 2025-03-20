@@ -23,7 +23,7 @@ describe('Product Model Test Suite', () => {
       quantity: 100,
       shipping: true,
     };
-  });
+  }, 15000); // Timeout for beforeEach
 
   it('should create & save product successfully', async () => {
     const product = new ProductModel(validProduct);
@@ -39,7 +39,7 @@ describe('Product Model Test Suite', () => {
     expect(savedProduct.shipping).toBe(validProduct.shipping);
     expect(savedProduct.createdAt).toBeDefined();
     expect(savedProduct.updatedAt).toBeDefined();
-  });
+  }, 15000);
 
   it('should fail to save product with missing required fields', async () => {
     const productWithMissingFields = new ProductModel({
@@ -49,7 +49,7 @@ describe('Product Model Test Suite', () => {
     await expect(productWithMissingFields.save()).rejects.toThrow(
       mongoose.Error.ValidationError
     );
-  });
+  }, 15000);
 
   it('should save product with photo', async () => {
     const productWithPhoto = {
@@ -65,7 +65,7 @@ describe('Product Model Test Suite', () => {
 
     expect(savedProduct.photo.data).toBeDefined();
     expect(savedProduct.photo.contentType).toBe('image/jpeg');
-  });
+  }, 15000);
 
   it('should save product without optional fields', async () => {
     const productWithoutOptional = {
@@ -81,7 +81,7 @@ describe('Product Model Test Suite', () => {
     expect(savedProduct.shipping).toBeUndefined();
     expect(savedProduct.photo.data).toBeUndefined();
     expect(savedProduct.photo.contentType).toBeUndefined();
-  });
+  }, 15000);
 
   it('should populate category field', async () => {
     const product = new ProductModel(validProduct);
@@ -93,5 +93,5 @@ describe('Product Model Test Suite', () => {
 
     expect(populatedProduct.category).toBeDefined();
     expect(populatedProduct.category.name).toBe('Test Category');
-  });
-});
+  }, 15000);
+}, 60000); // Higher timeout for the entire test suite

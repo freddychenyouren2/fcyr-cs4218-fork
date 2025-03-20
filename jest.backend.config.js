@@ -1,6 +1,4 @@
 export default {
-  testTimeout: 10000,
-
   // display name
   displayName: 'backend',
 
