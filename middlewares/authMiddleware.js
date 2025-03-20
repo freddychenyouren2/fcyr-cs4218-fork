@@ -6,6 +6,7 @@ const verifyToken = (token) => {
     try {
         return JWT.verify(token, process.env.JWT_SECRET);
     } catch (error) {
+        console.log("Error in verifyToken:", error);
         return null;
     }
 };
@@ -23,7 +24,8 @@ export const requireSignIn = async (req, res, next) => {
         }
 
         const decoded = verifyToken(authHeaderToken);
-
+        console.log("Decoded Token:", decoded);
+        
         if (!decoded) {
             return res.status(401).json({
                 success: false,
@@ -31,7 +33,15 @@ export const requireSignIn = async (req, res, next) => {
             });
         }
 
-        req.user = decoded;
+        const existingUser = await userModel.findById(decoded._id);
+        if (!existingUser) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized: No user found",
+            });
+        }
+
+        req.user = existingUser;
         next();
     } catch (error) {
         console.log(error);
@@ -55,6 +65,7 @@ export const isAdmin = async (req, res, next) => {
         }
 
         const user = await userModel.findById(req.user._id);
+        console.log("Admin Middleware - Fetched User:", user);
         if(!user || user.role !== 1) { 
             return res.status(403).json({
                 success: false,
