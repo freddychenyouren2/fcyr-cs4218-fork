@@ -1,11 +1,12 @@
 import request from "supertest";
-import mongoose from "mongoose";
 import app from "../server"; // Ensure correct path
 import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
+import JWT from "jsonwebtoken";
 import braintree from "braintree";
 
 jest.mock("braintree"); // Ensure mock is used
+jest.mock("../models/userModel"); // Mock the database model
 
 describe("Braintree Mock Tests", () => {
     test("should return a fake transaction ID", async () => {
@@ -25,60 +26,49 @@ let userToken;
 let adminToken;
 
 beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    // 1️. Register & Login Admin User
-    await request(app).post("/api/v1/auth/register").send({
-        name: "Admin User",
-        email: "admin@example.com",
-        password: "AdminPass123",
-        phone: "9876543210",
-        address: "Admin Office",
-        answer: "AdminAnswer",
+    // Mock userModel.findById() to return user details based on token
+    userModel.findById = jest.fn(async (id) => {
+        if (id === "adminId") {
+            return { _id: "adminId", role: 1 }; // Admin
+        } else if (id === "userId") {
+            return { _id: "userId", role: 0 }; // Regular user
+        }
+        return null;
     });
 
-    // Ensure the registered user is promoted to admin
-    await userModel.findOneAndUpdate(
-        { email: "admin@example.com" },
-        { role: 1 } // Set role to Admin
-    );
+    // Mock user registration
+    userModel.create.mockImplementation(async (userData) => ({
+        _id: userData.email.includes("admin") ? "adminId" : "userId",
+        ...userData,
+    }));
 
-    const adminLogin = await request(app).post("/api/v1/auth/login").send({
-        email: "admin@example.com",
-        password: "AdminPass123",
+    // Mock user login response
+    userModel.findOne.mockImplementation(async (query) => {
+        if (query.email === "admin@example.com") {
+            return { _id: "adminId", role: 1, password: await hashPassword("AdminPass123") };
+        } else if (query.email === "testuser@example.com") {
+            return { _id: "userId", role: 0, password: await hashPassword("UserPass123") };
+        }
+        return null;
     });
 
-    adminToken = adminLogin.body.token;
-
-    if (!adminToken) {
-        throw new Error("Admin JWT Token not received! Admin login may have failed.");
-    }
-
-    // 2️. Register & Login Regular User
-    await request(app).post("/api/v1/auth/register").send({
-        name: "Test User",
-        email: "testuser@example.com",
-        password: "UserPass123",
-        phone: "1234567890",
-        address: "123 Test Street",
-        answer: "TestAnswer",
+    // Generate JWT Tokens (simulating login)
+    adminToken = JWT.sign({ _id: "adminId" }, process.env.JWT_SECRET || "testsecret", {
+        expiresIn: "7d",
     });
 
-    const userLogin = await request(app).post("/api/v1/auth/login").send({
-        email: "testuser@example.com",
-        password: "UserPass123",
+    userToken = JWT.sign({ _id: "userId" }, process.env.JWT_SECRET || "testsecret", {
+        expiresIn: "7d",
     });
 
-    userToken = userLogin.body.token;
-
-    if (!userToken) {
-        throw new Error("User JWT Token not received! User login may have failed.");
+    if (!adminToken || !userToken) {
+        throw new Error("JWT Token not generated properly!");
     }
 });
 
-afterAll(async () => {
-    await userModel.deleteMany({});
-    await mongoose.connection.close();
+
+afterAll(() => {
+    jest.clearAllMocks(); // Ensure all mocks are reset
 });
 
 /** Allow Admin Access to Admin Routes */

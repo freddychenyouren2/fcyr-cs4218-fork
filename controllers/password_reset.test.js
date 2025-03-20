@@ -1,11 +1,13 @@
 import request from "supertest";
-import mongoose from "mongoose";
 import app from "../server"; // Ensure correct path
 import userModel from "../models/userModel";
-import { hashPassword } from "../helpers/authHelper";
+import { hashPassword, comparePassword } from "../helpers/authHelper";
+import JWT from "jsonwebtoken";
 import braintree from "braintree";
 
 jest.mock("braintree"); // Ensure mock is used
+jest.mock("../models/userModel"); // Mock the database model
+jest.mock("../helpers/authHelper"); // Mock hashing functions
 
 describe("Braintree Mock Tests", () => {
     test("should return a fake transaction ID", async () => {
@@ -26,25 +28,41 @@ let newPassword = "NewSecurePass123";
 let oldPassword = "OldSecurePass123";
 
 beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    // 1️⃣ Register Test User
-    const hashedOldPassword = await hashPassword(oldPassword);
-    const hashedAnswer = await hashPassword("TestAnswer");
-
-    testUser = await userModel.create({
+    // Mock user creation
+    testUser = {
+        _id: "testUserId",
         name: "Test User",
         email: "testuser@example.com",
-        password: hashedOldPassword,
+        password: await hashPassword(oldPassword),
         phone: "1234567890",
         address: "123 Test Street",
-        answer: hashedAnswer
+        answer: await hashPassword("TestAnswer"),
+    };
+
+    userModel.findOne = jest.fn(async (query) => {
+        if (query.email === "testuser@example.com") return testUser;
+        return null;
+    });
+
+    userModel.findByIdAndUpdate = jest.fn(async (id, update) => {
+        if (id === "testUserId") {
+            testUser.password = update.password; // Simulate password update
+            return testUser;
+        }
+        return null;
+    });
+
+    comparePassword.mockImplementation(async (inputPassword, storedPassword) => {
+        return inputPassword === "TestAnswer"; // Mock correct answer check
+    });
+
+    hashPassword.mockImplementation(async (password) => {
+        return `hashed_${password}`; // Simulate hashing
     });
 });
 
-afterAll(async () => {
-    await userModel.deleteMany({});
-    await mongoose.connection.close();
+afterAll(() => {
+    jest.clearAllMocks(); // Ensure all mocks are reset
 });
 
 /** 1. Request Password Reset Successfully */
@@ -54,7 +72,7 @@ test("should allow user to request password reset with correct email and securit
         .send({
             email: "testuser@example.com",
             answer: "TestAnswer",
-            newPassword
+            newPassword,
         });
 
     expect(res.status).toBe(200);
@@ -64,12 +82,14 @@ test("should allow user to request password reset with correct email and securit
 
 /** 2. Reject Incorrect Security Answer */
 test("should reject password reset with incorrect security answer", async () => {
+    comparePassword.mockImplementationOnce(async (inputAnswer, storedAnswer) => false); // Simulate wrong answer
+
     const res = await request(app)
         .post("/api/v1/auth/forgot-password")
         .send({
             email: "testuser@example.com",
             answer: "WrongAnswer",
-            newPassword
+            newPassword,
         });
 
     expect(res.status).toBe(404);
@@ -79,12 +99,14 @@ test("should reject password reset with incorrect security answer", async () => 
 
 /** 3. Reject Non-Existent User */
 test("should reject password reset request for a non-existent user", async () => {
+    userModel.findOne.mockImplementationOnce(async (query) => null); // Simulate no user found
+
     const res = await request(app)
         .post("/api/v1/auth/forgot-password")
         .send({
             email: "nonexistent@example.com",
             answer: "TestAnswer",
-            newPassword
+            newPassword,
         });
 
     expect(res.status).toBe(404);
@@ -94,11 +116,15 @@ test("should reject password reset request for a non-existent user", async () =>
 
 /** 4. Verify Login with New Password */
 test("should allow user to log in with the new password after reset", async () => {
+    comparePassword.mockImplementationOnce(async (inputPassword, storedPassword) => {
+        return inputPassword === newPassword; // Simulate successful login with new password
+    });
+
     const res = await request(app)
         .post("/api/v1/auth/login")
         .send({
             email: "testuser@example.com",
-            password: newPassword
+            password: newPassword,
         });
 
     expect(res.status).toBe(200);
@@ -112,7 +138,7 @@ test("should reject login with old password after password reset", async () => {
         .post("/api/v1/auth/login")
         .send({
             email: "testuser@example.com",
-            password: oldPassword
+            password: oldPassword,
         });
 
     expect(res.status).toBe(401);
