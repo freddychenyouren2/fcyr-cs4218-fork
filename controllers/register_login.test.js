@@ -4,8 +4,24 @@ import app from "../server.js"; // Ensure this points to your Express app
 import userModel from "../models/userModel.js";
 import { hashPassword } from "../helpers/authHelper.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import braintree from "braintree";
 
 let mongoServer;
+
+jest.mock("braintree"); // Ensure mock is used
+
+describe("Braintree Mock Tests", () => {
+    test("should return a fake transaction ID", async () => {
+        const gateway = new braintree.BraintreeGateway();
+        const response = await gateway.transaction.sale({
+            amount: "10.00",
+            paymentMethodNonce: "fake-valid-nonce",
+        });
+
+        expect(response.success).toBe(true);
+        expect(response.transaction.id).toBe("fake_txn_id");
+    });
+});
 
 beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();

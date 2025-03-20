@@ -4,6 +4,23 @@ import app from "../server"; // Ensure correct path
 import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 import JWT from "jsonwebtoken";
+import braintree from "braintree";
+
+jest.mock("braintree"); // Ensure mock is used
+
+describe("Braintree Mock Tests", () => {
+    test("should return a fake transaction ID", async () => {
+        const gateway = new braintree.BraintreeGateway();
+        const response = await gateway.transaction.sale({
+            amount: "10.00",
+            paymentMethodNonce: "fake-valid-nonce",
+        });
+
+        expect(response.success).toBe(true);
+        expect(response.transaction.id).toBe("fake_txn_id");
+    });
+});
+
 
 // Mock Environment Variable for JWT Secret
 process.env.JWT_SECRET = "testsecret";
