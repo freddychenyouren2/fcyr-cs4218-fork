@@ -81,6 +81,9 @@ describe('Product Controller', () => {
     });
 
     it('should create a product successfully', async () => {
+      // Mock findOne to return null (no existing product with same name)
+      productModel.findOne = jest.fn().mockResolvedValue(null);
+      
       const mockProduct = {
         ...mockReq.fields,
         photo: {},
@@ -92,6 +95,7 @@ describe('Product Controller', () => {
 
       await createProductController(mockReq, mockRes);
 
+      expect(productModel.findOne).toHaveBeenCalledWith({ name: mockReq.fields.name });
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: true,
@@ -100,31 +104,31 @@ describe('Product Controller', () => {
       });
     });
 
+    it('should return error when product with same name already exists', async () => {
+      // Mock findOne to return an existing product with the same name
+      const existingProduct = {
+        _id: 'existing-id',
+        name: mockReq.fields.name,
+      };
+      productModel.findOne = jest.fn().mockResolvedValue(existingProduct);
+      
+      await createProductController(mockReq, mockRes);
+
+      expect(productModel.findOne).toHaveBeenCalledWith({ name: mockReq.fields.name });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: false,
+        error: "Product with this name already exists"
+      });
+    });
+
     it('should return error when required fields are missing', async () => {
       mockReq.fields.name = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
 
       await createProductController(mockReq, mockRes);
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.send).toHaveBeenCalledWith({
-        error: 'Name is Required',
-      });
-    });
-
-    it('should return error when photo size is too large', async () => {
-      mockReq.files.photo.size = 2000000;
-
-      await createProductController(mockReq, mockRes);
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.send).toHaveBeenCalledWith({
-        error: 'photo is Required and should be less then 1mb',
-      });
-    });
-
-    it('should return error when name is missing', async () => {
-      mockReq.fields.name = '';
-      await createProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
         error: 'Name is Required',
@@ -133,6 +137,9 @@ describe('Product Controller', () => {
 
     it('should return error when description is missing', async () => {
       mockReq.fields.description = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await createProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -142,6 +149,9 @@ describe('Product Controller', () => {
 
     it('should return error when price is missing', async () => {
       mockReq.fields.price = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await createProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -151,6 +161,9 @@ describe('Product Controller', () => {
 
     it('should return error when category is missing', async () => {
       mockReq.fields.category = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await createProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -160,6 +173,9 @@ describe('Product Controller', () => {
 
     it('should return error when quantity is missing', async () => {
       mockReq.fields.quantity = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await createProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -167,7 +183,23 @@ describe('Product Controller', () => {
       });
     });
 
+    it('should return error when photo size is too large', async () => {
+      mockReq.files.photo.size = 2000000;
+      
+      // This validation error happens before the duplicate name check, so no need to mock findOne
+
+      await createProductController(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        error: 'photo is Required and should be less then 1mb',
+      });
+    });
+
     it('should handle general error during product creation', async () => {
+      // Mock findOne to return null (no existing product with same name)
+      productModel.findOne = jest.fn().mockResolvedValue(null);
+      
       const error = new Error('Database error');
       const mockProduct = {
         ...mockReq.fields,
@@ -382,6 +414,9 @@ describe('Product Controller', () => {
     });
 
     it('should update product successfully', async () => {
+      // Mock findOne to return null (no duplicate name)
+      productModel.findOne = jest.fn().mockResolvedValue(null);
+      
       const mockUpdatedProduct = {
         ...mockReq.fields,
         photo: {},
@@ -393,6 +428,10 @@ describe('Product Controller', () => {
 
       await updateProductController(mockReq, mockRes);
 
+      expect(productModel.findOne).toHaveBeenCalledWith({
+        name: mockReq.fields.name,
+        _id: { $ne: mockReq.params.pid },
+      });
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.send).toHaveBeenCalledWith({
         success: true,
@@ -401,8 +440,33 @@ describe('Product Controller', () => {
       });
     });
 
+    it('should return error when product with same name already exists', async () => {
+      // Mock findOne to return an existing product with the same name
+      const existingProduct = {
+        _id: 'another-id',
+        name: mockReq.fields.name,
+      };
+      productModel.findOne = jest.fn().mockResolvedValue(existingProduct);
+      
+      await updateProductController(mockReq, mockRes);
+
+      expect(productModel.findOne).toHaveBeenCalledWith({
+        name: mockReq.fields.name,
+        _id: { $ne: mockReq.params.pid },
+      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: false,
+        error: 'Another product with this name already exists',
+      });
+      // Verify findByIdAndUpdate was not called
+      expect(productModel.findByIdAndUpdate).not.toHaveBeenCalled();
+    });
+
     it('should return error when required fields are missing in update', async () => {
       mockReq.fields.name = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
 
       await updateProductController(mockReq, mockRes);
 
@@ -414,6 +478,9 @@ describe('Product Controller', () => {
 
     it('should return error when description is missing in update', async () => {
       mockReq.fields.description = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await updateProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -423,6 +490,9 @@ describe('Product Controller', () => {
 
     it('should return error when price is missing in update', async () => {
       mockReq.fields.price = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await updateProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -432,6 +502,9 @@ describe('Product Controller', () => {
 
     it('should return error when category is missing in update', async () => {
       mockReq.fields.category = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await updateProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -441,6 +514,9 @@ describe('Product Controller', () => {
 
     it('should return error when quantity is missing in update', async () => {
       mockReq.fields.quantity = '';
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await updateProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -450,6 +526,9 @@ describe('Product Controller', () => {
 
     it('should return error when photo size is too large in update', async () => {
       mockReq.files.photo.size = 2000000;
+      
+      // Validation errors happen before the duplicate name check, so no need to mock findOne
+      
       await updateProductController(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith({
@@ -458,6 +537,9 @@ describe('Product Controller', () => {
     });
 
     it('should handle general error during product update', async () => {
+      // Mock findOne to return null (no duplicate name)
+      productModel.findOne = jest.fn().mockResolvedValue(null);
+      
       const error = new Error('Update error');
       productModel.findByIdAndUpdate.mockRejectedValue(error);
 
