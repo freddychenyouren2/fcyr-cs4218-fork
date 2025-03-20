@@ -175,7 +175,13 @@ describe("AdminOrders Component", () => {
         axios.put.mockReset();
 
         // Setup default success responses
-        axios.get.mockResolvedValue({ data: mockOrders });
+        // Update to match new API response format
+        axios.get.mockResolvedValue({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
     };
 
     beforeEach(() => {
@@ -195,9 +201,7 @@ describe("AdminOrders Component", () => {
         const { getByText, getByTestId } = rendered;
 
         expect(getByTestId("mock-layout")).toBeInTheDocument();
-
         expect(getByTestId("mock-admin-menu")).toBeInTheDocument();
-
         expect(getByText("All Orders")).toBeInTheDocument();
     });
 
@@ -254,13 +258,30 @@ describe("AdminOrders Component", () => {
     });
 
     it("should handle order status change", async () => {
-        axios.get.mockResolvedValueOnce({ data: mockOrders });
+        // Mock initial orders fetch
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
 
-        axios.put.mockResolvedValueOnce({ data: { success: true } });
+        // Mock successful status update
+        axios.put.mockResolvedValueOnce({ 
+            data: { 
+                success: true 
+            } 
+        });
 
+        // Mock orders fetch after status update
         const updatedOrders = JSON.parse(JSON.stringify(mockOrders));
         updatedOrders[0].status = "Shipped";
-        axios.get.mockResolvedValueOnce({ data: updatedOrders });
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: updatedOrders 
+            } 
+        });
 
         let rendered;
         await act(async () => {
@@ -296,10 +317,8 @@ describe("AdminOrders Component", () => {
             expect(axios.get).toHaveBeenCalledTimes(2);
         });
 
-        // Verify toast success was called if your component has this behavior
-        if (toast.success) {
-            expect(toast.success).toHaveBeenCalled();
-        }
+        // Verify toast success was called
+        expect(toast.success).toHaveBeenCalledWith("Order status updated");
     });
 
     it("should handle error when updating order status fails", async () => {
@@ -307,7 +326,12 @@ describe("AdminOrders Component", () => {
         console.log = jest.fn();
 
         // Mock the initial orders fetch
-        axios.get.mockResolvedValueOnce({ data: mockOrders });
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
 
         // Mock the status update request to fail
         const error = new Error("Failed to update status");
@@ -341,9 +365,7 @@ describe("AdminOrders Component", () => {
             expect(console.log).toHaveBeenCalledWith(error);
         });
 
-        if (toast.error) {
-            expect(toast.error).toHaveBeenCalled();
-        }
+        expect(toast.error).toHaveBeenCalledWith("Something went wrong in updating order status");
     });
 
     it("should not fetch orders if auth token is not available", async () => {
@@ -366,7 +388,12 @@ describe("AdminOrders Component", () => {
     });
 
     it("should display correct product count for each order", async () => {
-        axios.get.mockResolvedValueOnce({ data: mockOrders });
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
 
         await act(async () => {
             render(
@@ -395,7 +422,12 @@ describe("AdminOrders Component", () => {
     });
 
     it("should display correct formatted prices", async () => {
-        axios.get.mockResolvedValueOnce({ data: mockOrders });
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
 
         await act(async () => {
             render(
@@ -413,7 +445,12 @@ describe("AdminOrders Component", () => {
     });
 
     it("should show correct order status", async () => {
-        axios.get.mockResolvedValueOnce({ data: mockOrders });
+        axios.get.mockResolvedValueOnce({ 
+            data: { 
+                success: true,
+                orders: mockOrders 
+            } 
+        });
 
         await act(async () => {
             render(
