@@ -49,29 +49,32 @@ const mockAuthData = JSON.stringify({
 
 // Mock orders data
 const mockOrders = ({
-    data: [
-      {
-        _id: "1",
-        status: "Shipped",
-        buyer: { name: "John Doe" },
-        createdAt: "2023-03-01T12:00:00Z",
-        payment: { success: true },
-        products: [
-          { _id: "p1", name: "Product 1", description: "Description 1. This is going to be a very long description. Intentionally longer than 200 characters so that we can test whether the description will be trimmed properly on the web page. Here are more dummy description characters to make it more than 200 characters.", price: 100 }
+    data: {
+        success: true,
+        orders: [
+            {
+                _id: "1",
+                status: "Shipped",
+                buyer: { name: "John Doe" },
+                createdAt: "2023-03-01T12:00:00Z",
+                payment: { success: true },
+                products: [
+                    { _id: "p1", name: "Product 1", description: "Description 1. This is going to be a very long description. Intentionally longer than 200 characters so that we can test whether the description will be trimmed properly on the web page. Here are more dummy description characters to make it more than 200 characters.", price: 100 }
+                ]
+            },
+            {
+                _id: "2",
+                status: "Not Process",
+                buyer: { name: "John Doe" },
+                createdAt: "2023-03-02T12:00:00Z",
+                payment: { success: false },
+                products: [
+                    { _id: "p2", name: "Product 2", description: "Description 2. Short Description.", price: 14.99 },
+                    { _id: "p3", name: "Product 3", description: "Description 3. Short Description.", price: 9.99 }
+                ]
+            }
         ]
-      },
-      {
-        _id: "2",
-        status: "Not Process",
-        buyer: { name: "John Doe" },
-        createdAt: "2023-03-02T12:00:00Z",
-        payment: { success: false },
-        products: [
-          { _id: "p2", name: "Product 2", description: "Description 2. Short Description.", price: 14.99 },
-          { _id: "p3", name: "Product 3", description: "Description 3. Short Description.", price: 9.99 }
-        ]
-      }
-    ]
+    }
 });
 
 describe("User Order Component", () => {
@@ -98,14 +101,17 @@ describe("User Order Component", () => {
             </MemoryRouter>
         );
         
-        // Check if the order details are rendered correctly. Wait for loading.
-        await waitFor(() => {
-            expect(screen.getByText("Shipped")).toBeInTheDocument();
+        // Initially should show loading
+        expect(screen.getByText("Loading...")).toBeInTheDocument();
         
-        })
+        // Check if the order details are rendered correctly. Wait for loading to finish.
+        await waitFor(() => {
+            expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+            expect(screen.getByText("Shipped")).toBeInTheDocument();
+        });
 
         const johnDoeNames = screen.getAllByText("John Doe");
-        expect(johnDoeNames.length).toBe(mockOrders.data.length + 1); // MockOrders has two orders for John Doe, plus the header row
+        expect(johnDoeNames.length).toBe(mockOrders.data.orders.length + 1); // MockOrders has two orders for John Doe, plus the header row
 
         expect(johnDoeNames[0]).toBeInTheDocument();
         expect(screen.getAllByText("John Doe")[0]).toBeInTheDocument();
@@ -118,6 +124,9 @@ describe("User Order Component", () => {
         expect(screen.getByText("Failed")).toBeInTheDocument();
         expect(screen.getByText("Product 2")).toBeInTheDocument();
         expect(screen.getByText("Product 3")).toBeInTheDocument();
+        
+        // Verify no error message is displayed
+        expect(screen.queryByText("Failed to fetch orders. Please try again later.")).not.toBeInTheDocument();
     })
 
     test("trims long descriptions to 200 characters with ellipsis", async () => {
@@ -133,7 +142,7 @@ describe("User Order Component", () => {
         );
     
         await waitFor(() => {
-          const longDescription = mockOrders.data[0].products[0].description;
+          const longDescription = mockOrders.data.orders[0].products[0].description;
           const trimmedDescription = `${longDescription.substring(0, 200)}...`;
     
           // Check if the trimmed description is rendered correctly and with ellipsis
@@ -154,7 +163,7 @@ describe("User Order Component", () => {
         );
     
         await waitFor(() => {
-          const shortDescription = mockOrders.data[1].products[0].description;
+          const shortDescription = mockOrders.data.orders[1].products[0].description;
     
           // Check if the short description is rendered without trimming and ellipsis
           expect(screen.getByText(shortDescription)).toBeInTheDocument();
@@ -162,7 +171,7 @@ describe("User Order Component", () => {
     });
 
     test("displays 'No orders found.' message when no orders", async () => {
-        axios.get.mockResolvedValue({ data: [] });
+        axios.get.mockResolvedValue({ data: { success: true, orders: [] } });
         render(
             <MemoryRouter initialEntries={["/dashboard/user/orders"]}>
                 <Routes>
@@ -179,10 +188,14 @@ describe("User Order Component", () => {
     });
 
     test("displays loading state when fetching orders", async () => {
-        axios.get.mockImplementation(
-          () =>
-            new Promise((resolve) => setTimeout(() => resolve(mockOrders), 1000))
-        );
+        // Create a promise that we can resolve later to control when the API response returns
+        let resolvePromise;
+        const apiPromise = new Promise((resolve) => {
+          resolvePromise = resolve;
+        });
+        
+        axios.get.mockImplementation(() => apiPromise);
+        
         render(
           <MemoryRouter initialEntries={["/dashboard/user/orders"]}>
             <Routes>
@@ -192,14 +205,22 @@ describe("User Order Component", () => {
             </Routes>
           </MemoryRouter>
         );
-    
+
+        // Initially should show loading
         expect(screen.getByText("Loading...")).toBeInTheDocument();
+        
+        // Resolve the API promise
+        resolvePromise(mockOrders);
+        
+        // Wait for the component to update and check loading is gone
         await waitFor(() => {
+          expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
           expect(screen.getByText("All Orders")).toBeInTheDocument();
         });
-      });
+    });
     
-      test("displays error message when API call fails", async () => {
+    test("displays error message when API call fails", async () => {
+        const errorMessage = "Failed to fetch orders. Please try again later.";
         axios.get.mockRejectedValue(new Error("Network Error"));
         render(
           <MemoryRouter initialEntries={["/dashboard/user/orders"]}>
@@ -211,11 +232,13 @@ describe("User Order Component", () => {
           </MemoryRouter>
         );
     
+        // Should initially show loading state
+        expect(screen.getByText("Loading...")).toBeInTheDocument();
+    
         await waitFor(() => {
-          expect(
-            screen.getByText("Failed to fetch orders. Please try again later.")
-          ).toBeInTheDocument();
+          expect(screen.getByText(errorMessage)).toBeInTheDocument();
+          expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
         });
-      });
+    });
 
 })
