@@ -24,7 +24,6 @@ export const requireSignIn = async (req, res, next) => {
         }
 
         const decoded = verifyToken(authHeaderToken);
-        console.log("Decoded Token:", decoded);
         
         if (!decoded) {
             return res.status(401).json({
@@ -65,7 +64,6 @@ export const isAdmin = async (req, res, next) => {
         }
 
         const user = await userModel.findById(req.user._id);
-        console.log("Admin Middleware - Fetched User:", user);
         if(!user || user.role !== 1) { 
             return res.status(403).json({
                 success: false,
