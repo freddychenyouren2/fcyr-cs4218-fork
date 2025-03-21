@@ -23,10 +23,10 @@ export default {
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
-    // 'controllers/**',
-    // 'config/**',
+    'controllers/**',
+    'config/**',
     'middlewares/**',
-    // 'models/**',
+    'models/**',
   ],
   coverageThreshold: {
     global: {
