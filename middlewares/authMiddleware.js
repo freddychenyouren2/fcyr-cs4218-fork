@@ -43,7 +43,7 @@ export const requireSignIn = async (req, res, next) => {
     }
 };
 
-//admin access
+// Admin access
 export const isAdmin = async (req, res, next) => {
     try {
         // Check if user is found
@@ -60,15 +60,14 @@ export const isAdmin = async (req, res, next) => {
                 success: false,
                 message: "Forbidden: Admin Access Required",
             });
-        } else {
-            next();
         }
+        next();
     } catch (error) {
         console.log(error);
-        res.status(401).send({
+        res.status(500).json({
             success: false,
-            error,
             message: "Error in admin middleware",
+            error,
         });
     }
 };

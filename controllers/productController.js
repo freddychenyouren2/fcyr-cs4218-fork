@@ -175,6 +175,19 @@ export const updateProductController = async (req, res) => {
           .send({ error: 'photo is Required and should be less then 1mb' });
     }
 
+    // Check if another product with the same name already exists (excluding the current product)
+    const existingProduct = await productModel.findOne({
+      name,
+      _id: { $ne: req.params.pid },
+    });
+
+    if (existingProduct) {
+      return res.status(400).send({
+        success: false,
+        error: 'Another product with this name already exists',
+      });
+    }
+
     const products = await productModel.findByIdAndUpdate(
       req.params.pid,
       { ...req.fields, slug: slugify(name) },

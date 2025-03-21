@@ -142,8 +142,8 @@ describe("isAdmin Middleware", () => {
         await isAdmin(req, res, next);
 
         expect(userModel.findById).toHaveBeenCalledWith("admin_user_id");
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.send).toHaveBeenCalledWith({
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
             success: false,
             error: expect.any(Error),
             message: "Error in admin middleware",

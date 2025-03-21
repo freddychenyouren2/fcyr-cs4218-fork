@@ -25,7 +25,7 @@ export const setupTestDB = () => {
     await CategoryModel.createCollection();
     await UserModel.syncIndexes();
     await CategoryModel.syncIndexes();
-  });
+  }, 30000);
 
   afterEach(async () => {
     const collections = mongoose.connection.collections;
@@ -46,5 +46,5 @@ export const setupTestDB = () => {
     }
     await mongoServer.stop();
     await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay to ensure cleanup
-  });
+  }, 30000);
 };
