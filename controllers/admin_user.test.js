@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../server"; // Ensure correct path
+import app from "../app"; // Ensure correct path
 import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 import JWT from "jsonwebtoken";

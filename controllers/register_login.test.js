@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../server.js";
+import app from "../app.js";
 import userModel from "../models/userModel.js";
 import { comparePassword, hashPassword } from "../helpers/authHelper.js";
 import braintree from "braintree";
