@@ -1,13 +1,17 @@
 import request from "supertest";
-import app from "../app";
+import app from "../app"; // Ensure correct path
 import userModel from "../models/userModel";
 import * as authHelper from "../helpers/authHelper";
 import JWT from "jsonwebtoken";
 import braintree from "braintree";
 
 // Proper mocking of dependencies
-jest.mock("braintree");
-jest.mock("../models/userModel");
+jest.mock("braintree"); // Ensure mock is used
+jest.mock("../models/userModel"); // Mock the database model
+jest.mock("../helpers/authHelper", () => ({
+  hashPassword: jest.fn(),
+  comparePassword: jest.fn(),
+}));
 
 // Braintree Test
 describe("Braintree Mock Tests", () => {
@@ -45,25 +49,28 @@ beforeAll(async () => {
     role: 0,
   };
 
-  // Mock DB findOne behavior
+  // Mock DB findOne behavior: when queried with test user's email, return testUser
   userModel.findOne = jest.fn(async (query) => {
     if (query.email === testUser.email) return testUser;
     return null;
   });
 
-  // Mock DB update behavior
+  // Mock DB update behavior: when updating by ID, update the testUser in memory
   userModel.findByIdAndUpdate = jest.fn(async (id, update) => {
     if (id === testUser._id) {
-      testUser = { ...testUser, ...update };
+      // update is expected to be in the form {$set: { password: "hashed_newPassword" }}
+      if (update && update.$set && update.$set.password) {
+        testUser.password = update.$set.password;
+      }
       return testUser;
     }
     return null;
   });
 
-  // Define hash behavior
+  // Mock hash function to prepend 'hashed_'
   authHelper.hashPassword.mockImplementation(async (pw) => `hashed_${pw}`);
 
-  // Define password/answer match behavior
+  // Mock password comparison: it will return true if input matches original value and hashed is "hashed_" + that value.
   authHelper.comparePassword.mockImplementation(async (input, hashed) => {
     return (
       (input === oldPassword && hashed === `hashed_${oldPassword}`) ||
@@ -74,10 +81,10 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  jest.clearAllMocks();
+  jest.clearAllMocks(); // Ensure all mocks are reset
 });
 
-/** 1️. Request Password Reset Successfully */
+/** 1. Request Password Reset Successfully */
 test("should allow user to request password reset with correct email and security answer", async () => {
   const res = await request(app)
     .post("/api/v1/auth/forgot-password")
@@ -92,8 +99,9 @@ test("should allow user to request password reset with correct email and securit
   expect(res.body.message).toBe("Password reset successfully");
 });
 
-/** 2️. Reject Incorrect Security Answer */
+/** 2. Reject Incorrect Security Answer */
 test("should reject password reset with incorrect security answer", async () => {
+  // Simulate wrong answer check
   authHelper.comparePassword.mockImplementationOnce(async () => false);
 
   const res = await request(app)
@@ -109,7 +117,7 @@ test("should reject password reset with incorrect security answer", async () => 
   expect(res.body.message).toBe("Wrong email or security answer");
 });
 
-/** 3️. Reject Non-Existent User */
+/** 3. Reject Non-Existent User */
 test("should reject password reset request for a non-existent user", async () => {
   userModel.findOne.mockImplementationOnce(async () => null);
 
@@ -126,11 +134,18 @@ test("should reject password reset request for a non-existent user", async () =>
   expect(res.body.message).toBe("Wrong email or security answer");
 });
 
-/** 4️. Verify Login with New Password */
+/** 4. Verify Login with New Password */
 test("should allow user to log in with the new password after reset", async () => {
-  // Ensure user and password are correct for login
+  // Force testUser to have the new hashed password as a result of a successful reset
+  testUser.password = `hashed_${newPassword}`;
+  
+  // For login, we ensure that findOne returns testUser with updated password
   userModel.findOne.mockResolvedValueOnce(testUser);
-  authHelper.comparePassword.mockResolvedValueOnce(true);
+  
+  // Modify comparePassword to simulate correct password for new password
+  authHelper.comparePassword.mockImplementation(async (input, hashed) => {
+    return input === newPassword && hashed === `hashed_${newPassword}`;
+  });
 
   const res = await request(app)
     .post("/api/v1/auth/login")
@@ -144,10 +159,11 @@ test("should allow user to log in with the new password after reset", async () =
   expect(res.body.token).toBeDefined();
 });
 
-/** 5️. Ensure Old Password No Longer Works */
+/** 5. Ensure Old Password No Longer Works */
 test("should reject login with old password after password reset", async () => {
   userModel.findOne.mockResolvedValueOnce(testUser);
-  authHelper.comparePassword.mockResolvedValueOnce(false);
+  // Simulate comparePassword failure for old password
+  authHelper.comparePassword.mockImplementation(async () => false);
 
   const res = await request(app)
     .post("/api/v1/auth/login")
