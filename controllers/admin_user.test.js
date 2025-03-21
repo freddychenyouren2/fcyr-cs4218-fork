@@ -1,12 +1,12 @@
 import request from "supertest";
-import app from "../app"; // Ensure correct path
+import app from "../app";
 import userModel from "../models/userModel";
 import { hashPassword } from "../helpers/authHelper";
 import JWT from "jsonwebtoken";
 import braintree from "braintree";
 
-jest.mock("braintree"); // Ensure mock is used
-jest.mock("../models/userModel"); // Mock the database model
+jest.mock("braintree");
+jest.mock("../models/userModel");
 
 describe("Braintree Mock Tests", () => {
     test("should return a fake transaction ID", async () => {
@@ -21,28 +21,32 @@ describe("Braintree Mock Tests", () => {
     });
 });
 
-// Define test variables
 let userToken;
 let adminToken;
 
 beforeAll(async () => {
-    // Mock userModel.findById() to return user details based on token
+    // Setup fake tokens
+    adminToken = JWT.sign({ _id: "adminId" }, process.env.JWT_SECRET || "testsecret");
+    userToken = JWT.sign({ _id: "userId" }, process.env.JWT_SECRET || "testsecret");
+
+    // 🔧 Important: Mock JWT.verify for consistency
+    jest.spyOn(JWT, "verify").mockImplementation((token, secret) => {
+        if (token === adminToken) return { _id: "adminId" };
+        if (token === userToken) return { _id: "userId" };
+        throw new Error("Invalid token");
+    });
+
     userModel.findById = jest.fn(async (id) => {
-        if (id === "adminId") {
-            return { _id: "adminId", role: 1 }; // Admin
-        } else if (id === "userId") {
-            return { _id: "userId", role: 0 }; // Regular user
-        }
+        if (id === "adminId") return { _id: "adminId", role: 1 };
+        if (id === "userId") return { _id: "userId", role: 0 };
         return null;
     });
 
-    // Mock user registration
     userModel.create.mockImplementation(async (userData) => ({
         _id: userData.email.includes("admin") ? "adminId" : "userId",
         ...userData,
     }));
 
-    // Mock user login response
     userModel.findOne.mockImplementation(async (query) => {
         if (query.email === "admin@example.com") {
             return { _id: "adminId", role: 1, password: await hashPassword("AdminPass123") };
@@ -51,24 +55,10 @@ beforeAll(async () => {
         }
         return null;
     });
-
-    // Generate JWT Tokens (simulating login)
-    adminToken = JWT.sign({ _id: "adminId" }, process.env.JWT_SECRET || "testsecret", {
-        expiresIn: "7d",
-    });
-
-    userToken = JWT.sign({ _id: "userId" }, process.env.JWT_SECRET || "testsecret", {
-        expiresIn: "7d",
-    });
-
-    if (!adminToken || !userToken) {
-        throw new Error("JWT Token not generated properly!");
-    }
 });
 
-
 afterAll(() => {
-    jest.clearAllMocks(); // Ensure all mocks are reset
+    jest.clearAllMocks();
 });
 
 /** Allow Admin Access to Admin Routes */

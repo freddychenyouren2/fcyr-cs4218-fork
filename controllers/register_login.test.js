@@ -1,12 +1,11 @@
 import request from "supertest";
 import app from "../app.js";
 import userModel from "../models/userModel.js";
-import { comparePassword, hashPassword } from "../helpers/authHelper.js";
+import * as authHelper from "../helpers/authHelper.js"; // Use actual module for spyOn
 import braintree from "braintree";
 
 jest.mock("braintree");
 jest.mock("../models/userModel");
-jest.mock("../helpers/authHelper");
 
 // Braintree Test
 describe("Braintree Mock Tests", () => {
@@ -29,20 +28,23 @@ const userEmail = "testuser@example.com";
 const userPassword = "SecurePass123";
 
 beforeAll(async () => {
-  hashPassword.mockResolvedValue("hashedSecurePass123");
+  // Spy on real helpers
+  jest.spyOn(authHelper, "hashPassword").mockImplementation(async (pw) => "hashed_" + pw);
+  jest.spyOn(authHelper, "comparePassword").mockImplementation(async (pw, hashed) => {
+    return hashed === "hashed_" + pw;
+  });
 
   registeredUser = {
     _id: "mockedUserId",
     name: "Test User",
     email: userEmail,
-    password: "hashedSecurePass123",
+    password: "hashed_" + userPassword,
     phone: "1234567890",
     address: "123 Test Street",
-    answer: "hashedAnswer",
+    answer: "hashed_testAnswer",
     role: 0,
   };
 
-  // Initial successful registration
   userModel.findOne.mockResolvedValueOnce(null);
   userModel.create.mockResolvedValueOnce(registeredUser);
 
@@ -141,8 +143,6 @@ test("should return 400 for missing required fields", async () => {
 /** 5️⃣ Successful login */
 test("should successfully login with correct credentials", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
-  comparePassword.mockResolvedValueOnce(true);
-
   const res = await request(app).post("/api/v1/auth/login").send({
     email: userEmail,
     password: userPassword,
@@ -157,7 +157,7 @@ test("should successfully login with correct credentials", async () => {
 /** 6️⃣ Incorrect password */
 test("should return 401 for incorrect password", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
-  comparePassword.mockResolvedValueOnce(false);
+  authHelper.comparePassword.mockResolvedValueOnce(false);
 
   const res = await request(app).post("/api/v1/auth/login").send({
     email: userEmail,
@@ -188,7 +188,7 @@ test("should return 404 for non-existent email", async () => {
 /** 8️⃣ JWT contains correct user ID */
 test("should return a JWT token containing user ID", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
-  comparePassword.mockResolvedValueOnce(true);
+  authHelper.comparePassword.mockResolvedValueOnce(true);
 
   const res = await request(app).post("/api/v1/auth/login").send({
     email: userEmail,
