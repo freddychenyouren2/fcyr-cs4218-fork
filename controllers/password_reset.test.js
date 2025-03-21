@@ -1,3 +1,5 @@
+process.env.JWT_SECRET = "testsecret";
+
 import request from "supertest";
 import app from "../app"; // Ensure correct path
 import userModel from "../models/userModel";
@@ -58,7 +60,6 @@ beforeAll(async () => {
   // Mock DB update behavior: when updating by ID, update the testUser in memory
   userModel.findByIdAndUpdate = jest.fn(async (id, update) => {
     if (id === testUser._id) {
-      // update is expected to be in the form {$set: { password: "hashed_newPassword" }}
       if (update && update.$set && update.$set.password) {
         testUser.password = update.$set.password;
       }
@@ -67,10 +68,10 @@ beforeAll(async () => {
     return null;
   });
 
-  // Mock hash function to prepend 'hashed_'
+  // Define hash behavior: simply prepend "hashed_"
   authHelper.hashPassword.mockImplementation(async (pw) => `hashed_${pw}`);
 
-  // Mock password comparison: it will return true if input matches original value and hashed is "hashed_" + that value.
+  // Define password/answer match behavior for reset
   authHelper.comparePassword.mockImplementation(async (input, hashed) => {
     return (
       (input === oldPassword && hashed === `hashed_${oldPassword}`) ||
@@ -81,7 +82,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  jest.clearAllMocks(); // Ensure all mocks are reset
+  jest.clearAllMocks();
 });
 
 /** 1. Request Password Reset Successfully */
@@ -101,7 +102,6 @@ test("should allow user to request password reset with correct email and securit
 
 /** 2. Reject Incorrect Security Answer */
 test("should reject password reset with incorrect security answer", async () => {
-  // Simulate wrong answer check
   authHelper.comparePassword.mockImplementationOnce(async () => false);
 
   const res = await request(app)
@@ -138,11 +138,9 @@ test("should reject password reset request for a non-existent user", async () =>
 test("should allow user to log in with the new password after reset", async () => {
   // Force testUser to have the new hashed password as a result of a successful reset
   testUser.password = `hashed_${newPassword}`;
-  
-  // For login, we ensure that findOne returns testUser with updated password
+  // For login, ensure that findOne returns testUser with updated password
   userModel.findOne.mockResolvedValueOnce(testUser);
-  
-  // Modify comparePassword to simulate correct password for new password
+  // Modify comparePassword to simulate successful password check for new password
   authHelper.comparePassword.mockImplementation(async (input, hashed) => {
     return input === newPassword && hashed === `hashed_${newPassword}`;
   });

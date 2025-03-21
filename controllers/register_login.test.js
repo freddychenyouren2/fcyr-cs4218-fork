@@ -4,6 +4,8 @@ import userModel from "../models/userModel.js";
 import * as authHelper from "../helpers/authHelper.js";
 import braintree from "braintree";
 
+process.env.JWT_SECRET = "testsecret";
+
 jest.mock("braintree");
 jest.mock("../models/userModel");
 jest.mock("../helpers/authHelper.js", () => ({
