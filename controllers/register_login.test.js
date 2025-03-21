@@ -1,11 +1,15 @@
 import request from "supertest";
 import app from "../app.js";
 import userModel from "../models/userModel.js";
-import * as authHelper from "../helpers/authHelper.js"; // Use actual module for spyOn
+import * as authHelper from "../helpers/authHelper.js";
 import braintree from "braintree";
 
 jest.mock("braintree");
 jest.mock("../models/userModel");
+jest.mock("../helpers/authHelper.js", () => ({
+  hashPassword: jest.fn(),
+  comparePassword: jest.fn(),
+}));
 
 // Braintree Test
 describe("Braintree Mock Tests", () => {
@@ -28,9 +32,9 @@ const userEmail = "testuser@example.com";
 const userPassword = "SecurePass123";
 
 beforeAll(async () => {
-  // Spy on real helpers
-  jest.spyOn(authHelper, "hashPassword").mockImplementation(async (pw) => "hashed_" + pw);
-  jest.spyOn(authHelper, "comparePassword").mockImplementation(async (pw, hashed) => {
+  // Setup proper mock implementations
+  authHelper.hashPassword.mockImplementation(async (pw) => "hashed_" + pw);
+  authHelper.comparePassword.mockImplementation(async (pw, hashed) => {
     return hashed === "hashed_" + pw;
   });
 
@@ -66,7 +70,7 @@ afterAll(() => {
 
 // Registration Tests
 
-/** 1️⃣ Register another user with valid input */
+/** 1️. Register another user with valid input */
 test("should successfully register a user with valid input", async () => {
   userModel.findOne.mockResolvedValueOnce(null);
   userModel.create.mockResolvedValueOnce({
@@ -89,7 +93,7 @@ test("should successfully register a user with valid input", async () => {
   expect(res.body.message).toBe("User registered successfully");
 });
 
-/** 2️⃣ Duplicate email registration */
+/** 2️. Duplicate email registration */
 test("should return 409 when registering with an already existing email", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
 
@@ -107,7 +111,7 @@ test("should return 409 when registering with an already existing email", async 
   expect(res.body.message).toBe("Email already registered. Please log in.");
 });
 
-/** 3️⃣ Invalid email format registration */
+/** 3️. Invalid email format registration */
 test("should return 400 for invalid email format", async () => {
   const res = await request(app).post("/api/v1/auth/register").send({
     name: "Invalid Email User",
@@ -123,7 +127,7 @@ test("should return 400 for invalid email format", async () => {
   expect(res.body.message).toBe("Invalid Email Format");
 });
 
-/** 4️⃣ Missing required fields during registration */
+/** 4️. Missing required fields during registration */
 test("should return 400 for missing required fields", async () => {
   const res = await request(app).post("/api/v1/auth/register").send({
     name: "User Without Email",
@@ -140,7 +144,7 @@ test("should return 400 for missing required fields", async () => {
 
 // Login Tests
 
-/** 5️⃣ Successful login */
+/** 5️. Successful login */
 test("should successfully login with correct credentials", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
   const res = await request(app).post("/api/v1/auth/login").send({
@@ -154,7 +158,7 @@ test("should successfully login with correct credentials", async () => {
   userToken = res.body.token;
 });
 
-/** 6️⃣ Incorrect password */
+/** 6️. Incorrect password */
 test("should return 401 for incorrect password", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
   authHelper.comparePassword.mockResolvedValueOnce(false);
@@ -169,7 +173,7 @@ test("should return 401 for incorrect password", async () => {
   expect(res.body.message).toBe("Invalid password");
 });
 
-/** 7️⃣ Login with non-existent email */
+/** 7️. Login with non-existent email */
 test("should return 404 for non-existent email", async () => {
   userModel.findOne.mockResolvedValueOnce(null);
 
@@ -185,7 +189,7 @@ test("should return 404 for non-existent email", async () => {
 
 // Token Verification
 
-/** 8️⃣ JWT contains correct user ID */
+/** 8️. JWT contains correct user ID */
 test("should return a JWT token containing user ID", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
   authHelper.comparePassword.mockResolvedValueOnce(true);
