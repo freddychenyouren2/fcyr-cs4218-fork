@@ -34,9 +34,7 @@ const userPassword = "SecurePass123";
 beforeAll(async () => {
   // Setup proper mock implementations
   authHelper.hashPassword.mockImplementation(async (pw) => "hashed_" + pw);
-  authHelper.comparePassword.mockImplementation(async (pw, hashed) => {
-    return hashed === "hashed_" + pw;
-  });
+  authHelper.comparePassword.mockImplementation(async (pw, hashed) => hashed === "hashed_" + pw);
 
   registeredUser = {
     _id: "mockedUserId",
@@ -49,8 +47,8 @@ beforeAll(async () => {
     role: 0,
   };
 
-  userModel.findOne.mockResolvedValueOnce(null);
-  userModel.create.mockResolvedValueOnce(registeredUser);
+  userModel.findOne.mockResolvedValue(null);
+  userModel.create.mockResolvedValue(registeredUser);
 
   const registerRes = await request(app).post("/api/v1/auth/register").send({
     name: "Test User",
@@ -147,6 +145,8 @@ test("should return 400 for missing required fields", async () => {
 /** 5️. Successful login */
 test("should successfully login with correct credentials", async () => {
   userModel.findOne.mockResolvedValueOnce(registeredUser);
+  authHelper.comparePassword.mockResolvedValueOnce(true);
+
   const res = await request(app).post("/api/v1/auth/login").send({
     email: userEmail,
     password: userPassword,
