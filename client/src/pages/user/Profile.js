@@ -11,7 +11,7 @@ const Profile = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("12345678");
   const [address, setAddress] = useState("");
 
   //get user data
