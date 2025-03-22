@@ -42,18 +42,26 @@ describe("ConfigDB - Integration Test", () => {
     test("should log an error if connection to in-memory MongoDB fails", async () => {
         process.env.MONGO_URL = "mongodb://invalid-url"; // Invalid URI to force failure
 
-        await connectDB();
+        try {
+            await connectDB();
+        } catch (error) {
+            // Catch the error to prevent unhandled promise rejection
+        }
 
+        expect(mongoose.connection.readyState).toBe(0); // Should remain disconnected
         expect(console.log).toHaveBeenCalledWith(
             expect.stringContaining("Error in Mongodb")
         );
-        expect(mongoose.connection.readyState).toBe(0); // Should remain disconnected
+        
     });
 
     test("should close the connection to in-memory MongoDB instance", async () => {
         process.env.MONGO_URL = mongoUrl; // Reset the URI
         await connectDB();
+
+        await mongoose.connection.dropDatabase();  // Ensure no pending operation
         await mongoose.connection.close();
+        await mongoServer.stop();
 
         expect(mongoose.connection.readyState).toBe(0); // 0 means disconnected
     });
