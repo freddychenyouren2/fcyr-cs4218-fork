@@ -96,9 +96,10 @@ const Profile = () => {
                 </div>
                 <div className="mb-3">
                   <input
-                    type="text"
+                    type="number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
+                    onChange={(e) => setPhone(e.target.value.toString())}
                     className="form-control"
                     id="exampleInputPhoneNumber1"
                     placeholder="Enter Your Phone Number"
