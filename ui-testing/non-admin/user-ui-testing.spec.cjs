@@ -59,7 +59,7 @@ test.describe('E2E User Flow - Checkout and Orders', () => {
   });
 })
 
-test.describe('User Profile', () => {
+test.describe('User Profile - Changing Profile Credentials', () => {
   // Reset fields.
   test.afterEach(async ({ page }) => {
       await page.getByRole('button', { name: updatedName }).click();
@@ -151,3 +151,60 @@ test.describe('User Profile', () => {
   }, );
 
 });
+
+test.describe('Search Component and Search Page', () => {
+  test('returns product(s) found if exists, and can be added to Cart.', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('searchbox', { name: 'Search' }).click();
+    await page.getByRole('searchbox', { name: 'Search' }).fill('T-shirt'); // Valid Product substring name
+    await page.getByRole('button', { name: 'Search' }).click();
+
+    // Assert that the search results page is visible
+    await expect(page.getByRole('heading', { name: 'Search Results' })).toBeVisible();
+
+    // Assert that there exist products with the substring 'T-shirt' in the name
+    await expect(page.getByRole('heading', { name: 'Found' })).toBeVisible();
+
+    // UI Check on the rendering of the products
+    await expect(page.locator('div').filter({ hasText: /^NUS T-shirtPlain NUS T-shirt for sale \$ 4\.99More DetailsADD TO CART$/ }).first()).toBeVisible();
+    
+    // Verify that Searched products can be added to cart
+    await page.getByRole('button', { name: 'ADD TO CART' }).click();
+    await expect(page.getByText('Item Added to cart')).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^Item Added to cart$/ }).nth(2)).toBeVisible();
+
+    // Verify that the product is added to the cart at cart page
+    await page.getByRole('link', { name: 'Cart' }).click();
+    await expect(page.getByText('NUS T-shirtPlain NUS T-shirt for salePrice : 4.99Remove')).toBeVisible();
+  });
+
+  test('returns a valid product and "More Details" button navigates to Product Detail Page', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('searchbox', { name: 'Search' }).click();
+    await page.getByRole('searchbox', { name: 'Search' }).fill('Phone'); // ANother valid Product substring name
+    await page.getByRole('button', { name: 'Search' }).click();
+
+    // Assert that the search results page is visible
+    await expect(page.getByRole('heading', { name: 'Search Results' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Found' })).toBeVisible();
+
+    // UI Check on the rendering of the products
+    await expect(page.getByText('SmartphoneA high-end')).toBeVisible();
+    await expect(page.getByRole('main')).toContainText('A high-end smartphone. Good for daily usage. Affor...');
+    await page.getByRole('button', { name: 'More Details' }).click();
+
+    // Navigate to Product Details Page
+    // Automatically redirected to Product detail Page
+    await expect(page).toHaveURL(/product/);
+    await expect(page.getByRole('heading', { name: 'Product Details' })).toBeVisible();
+  });
+
+  test('returns "No Products Found" if the product name searched does not exist', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByRole('searchbox', { name: 'Search' }).click();
+    await page.getByRole('searchbox', { name: 'Search' }).fill('abcdefghxxxx'); // Random string where no products would have this name.
+    await page.getByRole('button', { name: 'Search' }).click();
+    await expect(page.getByRole('heading', { name: 'Search Results' })).toBeVisible();
+    await expect(page.locator('h6')).toContainText('No Products Found');
+  });
+})
