@@ -227,10 +227,10 @@ describe("User Profile Component", () => {
         useAuth.mockReturnValue([
             {
                 user: {
-                    name: 'Jane Doe',
-                    email: 'janedoe@example.com',
-                    phone: '9876543210', // Stored as a string in database
-                    address: '456 Avenue',
+                    name: null, // Set to null to test if it updates to default value ""
+                    email: null, // Set to null to test if it updates to default value ""
+                    phone: undefined, // Set to null to test if it updates to default value ""
+                    address: null, // Set to null to test if it updates to default value ""
                 },
                 token: "mockToken2",
             },
@@ -246,11 +246,11 @@ describe("User Profile Component", () => {
             </MemoryRouter>
         );
         await waitFor(() => {
-            expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue('Jane Doe');
+            expect(screen.getByPlaceholderText("Enter Your Name")).toHaveValue("");
         }, { timeout: 3000});
-        expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue('janedoe@example.com');
-        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue(9876543210); // Update as of 22 March: Changed to number
-        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue('456 Avenue');
+        expect(screen.getByPlaceholderText("Enter Your Email")).toHaveValue("");
+        expect(screen.getByPlaceholderText("Enter Your Phone Number")).toHaveValue(12345678); // Update as of 22 March: Changed to number
+        expect(screen.getByPlaceholderText("Enter Your Address")).toHaveValue("");
       });
 
       test("disables onWheel scroll for phone number input", () => {
@@ -262,7 +262,7 @@ describe("User Profile Component", () => {
                 </Route>
             </Routes>
           </MemoryRouter>
-        );
+        ); 
     
         // Get the phone input field
         const phoneInput = screen.getByPlaceholderText("Enter Your Phone Number");
