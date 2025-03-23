@@ -70,6 +70,8 @@ test.describe('User Profile - Changing Profile Credentials', () => {
       await page.getByRole('textbox', { name: 'Enter Your Address' }).click();
       await page.getByRole('textbox', { name: 'Enter Your Address' }).fill(originalAddress);
       await page.getByRole('button', { name: 'UPDATE', exact: true }).click();
+      // Updated back Successfully
+    await expect(page.getByText('Profile Updated Successfully').first()).toBeVisible();
 
   })
   
@@ -130,6 +132,7 @@ test.describe('User Profile - Changing Profile Credentials', () => {
     // Go to user Orders Page
     await page.getByRole('button', { name: originalName }).click();
     await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.waitForURL('**/dashboard/user');
     await page.getByRole('link', { name: 'Orders' }).click();
 
     // Verify Original Profile name
